@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/itmedev/swrlit/issues"
   },
-  "homepage": "https://github.com/itmedev/swrlit#readme"
+  "homepage": "https://github.com/itmedev/swrlit#readme",
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  }
 }
