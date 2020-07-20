@@ -6,7 +6,7 @@ import { ldp } from "rdf-namespaces"
 
 import equal from 'fast-deep-equal/es6'
 
-export default function useThing(uri: string | undefined | null, { compare = equal, ...options }: ConfigInterface = {}) {
+export function useThing(uri: string | undefined | null, { compare = equal, ...options }: ConfigInterface = {}) {
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""

@@ -35,7 +35,7 @@ const getWebId: GetWebId = (_, id) => id;
  * `null` if there is no user,
  * or `undefined` if the user state is pending.
  */
-export default function useWebId(reducer: GetWebId = getWebId) {
+export function useWebId(reducer: GetWebId = getWebId) {
     const init = reducer as (_: any) => string
     const [result, updateWebId] = useReducer<GetWebId, WebId>(reducer, webId, init);
     useDebugValue(webId);

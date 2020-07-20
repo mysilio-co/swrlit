@@ -14,5 +14,3 @@ export function useContainer(uri: string, { compare = equal, ...options }: Confi
     })
     return { resources, ...rest }
 }
-
-export default useThing;
