@@ -2,9 +2,11 @@
   "name": "swrlit",
   "version": "0.0.1",
   "description": "it swirls the web in your glass",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "npx rollup -c"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,15 @@
   },
   "homepage": "https://github.com/itmedev/swrlit#readme",
   "devDependencies": {
+    "@rollup/plugin-typescript": "^5.0.2",
+    "rollup": "^2.22.1",
+    "tslib": "^2.0.0",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "@types/react": "^16.9.43",
+    "@types/solid-auth-client": "^2.4.0",
+    "react": "^16.13.1",
+    "solid-auth-client": "^2.4.1"
   }
 }
