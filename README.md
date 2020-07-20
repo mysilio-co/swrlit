@@ -22,6 +22,7 @@ import { useThing } from "swrlit"
 import {
   getUrlAll, getUrlOne, getStringNoLocaleOne
 } from '@itme/lit-pod'
+import { vcard, foaf } from 'rdf-namespaces'
 
 function Profile({webId}){
   const { thing: profile } = useThing(webId)
