@@ -21,9 +21,9 @@ npm install swrlit
 import { useThing } from "swrlit"
 import {
   getUrlAll, getUrlOne, getStringNoLocaleOne
-} from '@solid/lit-pod'
+} from '@itme/lit-pod'
 
-function Profile({webId)){
+function Profile({webId}){
   const { thing: profile } = useThing(webId)
   const profileImage = profile && getUrlOne(profile, vcard.hasPhoto)
   const name = profile && getStringNoLocaleOne(profile, foaf.name)
