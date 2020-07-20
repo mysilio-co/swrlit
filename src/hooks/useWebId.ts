@@ -23,7 +23,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import { useReducer, useEffect, useDebugValue } from 'react';
 import auth from 'solid-auth-client';
 
-type WebId = String | undefined | null
+type WebId = string | undefined | null
 // Keep track of the WebID and the state setters tracking it
 let webId: WebId;
 const subscribers: Set<any> = new Set();
@@ -36,7 +36,7 @@ const getWebId: GetWebId = (_, id) => id;
  * or `undefined` if the user state is pending.
  */
 export default function useWebId(reducer: GetWebId = getWebId) {
-    const init = reducer as (_: any) => String
+    const init = reducer as (_: any) => string
     const [result, updateWebId] = useReducer<GetWebId, WebId>(reducer, webId, init);
     useDebugValue(webId);
 
