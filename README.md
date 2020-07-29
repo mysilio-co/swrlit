@@ -1,6 +1,6 @@
 # swrlit
 
-swirl the web in your glass
+swirl the web in your cup
 
 ## what's this?
 
