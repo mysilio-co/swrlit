@@ -68,10 +68,14 @@ export function useMeta(uri: SwrlitKey, options = {}) {
 export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     const { data: resource, mutate, ...rest } = useSwrld(uri, options)
     const save = async (newDataset: SolidDataset) => {
-        mutate(newDataset, false)
-        const savedDataset = await saveSolidDatasetAt(asUrl(resource), newDataset)
-        mutate(savedDataset)
-        return savedDataset
+        if (uri) {
+            mutate(newDataset, false)
+            const savedDataset = await saveSolidDatasetAt(uri, newDataset)
+            mutate(savedDataset)
+            return savedDataset
+        } else {
+            throw new Error(`could not save dataset with uri of ${uri}`)
+        }
     }
     return (
         {
