@@ -9,6 +9,8 @@ import { ldp } from "rdf-namespaces"
 
 import equal from 'fast-deep-equal/es6'
 
+import { useWebId } from './useWebId'
+
 type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
 type SwrlitConfigInterface = ConfigInterface & {
@@ -111,4 +113,14 @@ export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}
         return getThing(data, url)
     })
     return { resources, ...rest }
+}
+
+export function useProfile(webId: SwrlitKey) {
+    const { thing: profile, ...rest } = useThing(webId)
+    return { profile, ...rest }
+}
+
+export function useMyProfile() {
+    const webId = useWebId()
+    return useProfile(webId)
 }
