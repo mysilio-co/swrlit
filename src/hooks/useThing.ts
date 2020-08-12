@@ -1,3 +1,4 @@
+import { useContext } from 'react'
 import useSWR, { ConfigInterface } from 'swr'
 import {
     Thing, SolidDataset,
@@ -8,10 +9,9 @@ import {
 import { ldp } from "rdf-namespaces"
 
 import equal from 'fast-deep-equal/es6'
+import { useAuthentication, fetcherFn } from '../contexts/authentication'
 
 import { useWebId } from './useWebId'
-
-type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
 type SwrlitConfigInterface = ConfigInterface & {
     acl?: boolean,
@@ -20,8 +20,18 @@ type SwrlitConfigInterface = ConfigInterface & {
 
 type SwrlitKey = string | null | undefined
 
-function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
+function useFetch(fetcher?: fetcherFn<any>) {
+    const { fetch } = useAuthentication()
+    return fetcher ? (
+        function thingFetcher(url: string, options: any) {
+            return fetcher(url, { fetch, ...options })
+        }
+    ) : fetch
+}
+
+export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     const { compare, fetch, acl } = options
+    const fetcher = useFetch(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
     options.compare = compare || equal
     const documentURL = uri && new URL(uri)
     if (documentURL) {
@@ -30,7 +40,7 @@ function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     const documentUri = documentURL && documentURL.toString()
     return useSWR(
         documentUri || null,
-        fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset),
+        fetcher,
         options)
 }
 
