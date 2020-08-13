@@ -4,7 +4,8 @@ import {
     Thing, SolidDataset,
     getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll,
     getSolidDatasetWithAcl,
-    getFile, overwriteFile, getFileWithAcl, asUrl
+    getFile, overwriteFile, getFileWithAcl, asUrl,
+    createSolidDataset
 } from '@itme/solid-client'
 import { ldp } from "rdf-namespaces"
 
@@ -103,7 +104,7 @@ export function useThing(uri: SwrlitKey, options = {}) {
     const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
     const thing = resource && uri && getThing(resource, uri)
     const save = async (newThing: Thing) => {
-        const newDataset = setThing(resource, newThing)
+        const newDataset = setThing(resource || createSolidDataset(), newThing)
         return saveResource(newDataset)
     }
     return (
