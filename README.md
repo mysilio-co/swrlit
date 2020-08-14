@@ -20,14 +20,14 @@ npm install swrlit
 ``` typescript
 import { useThing } from "swrlit"
 import {
-  getUrlAll, getUrlOne, getStringNoLocaleOne
-} from '@itme/lit-pod'
+  getUrlAll, getUrl, getStringNoLocale
+} from '@itme/solid-client'
 import { vcard, foaf } from 'rdf-namespaces'
 
 function Profile({webId}){
   const { thing: profile } = useThing(webId)
-  const profileImage = profile && getUrlOne(profile, vcard.hasPhoto)
-  const name = profile && getStringNoLocaleOne(profile, foaf.name)
+  const profileImage = profile && getUrl(profile, vcard.hasPhoto)
+  const name = profile && getStringNoLocale(profile, foaf.name)
   return (
   <div>
     <h1>{name}</h1>
@@ -36,3 +36,29 @@ function Profile({webId}){
   )
 }
 ```
+
+``` typescript
+  const myWebId = useWebId()
+  const timelogContainerUri = useTimelogContainerUri(myWebId, 'private')
+  const { resources: timelogs, mutate: mutateTimelogs } = useContainer(timelogContainerUri)
+
+  const createTimelog = async ({ name = "Time Tracker"}) => {
+    var log = createThing({ name: 'log' });
+    log = addUrl(log, RDF.type, TIMELOG.Log)
+    log = setStringNoLocale(log, RDFS.label, name)
+
+    var dataset = createSolidDataset()
+    dataset = setThing(dataset, log)
+
+    await saveSolidDatasetInContainer(timelogContainerUri, dataset, { slugSuggestion: name })
+    mutateTimelogs()
+  }
+```
+
+See
+
+https://github.com/itme/swrlit-example
+
+https://github.com/itme/swrlit-timetracker
+
+for functioning examples.
