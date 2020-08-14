@@ -1,6 +1,6 @@
 {
   "name": "swrlit",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "swirl the web in your glass",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
