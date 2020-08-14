@@ -112,6 +112,8 @@ export function useThing(uri: SwrlitKey, options = {}) {
             thing,
             mutate,
             save,
+            resource,
+            saveResource,
             ...rest
         }
     )
