@@ -2,27 +2,36 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
   Session,
   SessionManager,
-  getClientAuthenticationWithDependencies
+  getClientAuthenticationWithDependencies,
+  ILoginInputOptions
 } from '@inrupt/solid-client-authn-browser'
 
 import { getSolidDataset } from "@itme/solid-client"
+import parseUrl from "url-parse";
+
 
 export type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
 type Authentication = {
   session: any,
   fetch: fetcherFn<any>,
-  login: (options: any) => Promise<void>,
+  login: (options: ILoginInputOptions) => Promise<void>,
+  loginHandle: (handle: string, options: ILoginInputOptions) => Promise<void>,
   popupLogin: () => Promise<void>,
   logout: () => Promise<void>
 }
 
 const defaultFetch = async (url: string, options: any) => {
-  console.error("No default fetch implementation - have you added an AuthenticationProvider at the top level of your app?")
+  console.error("no default fetch implementation - have you added an AuthenticationProvider at the top level of your app - falling back to window.fetch")
+  return window.fetch(url, options)
 }
 
-const defaultLogin = async (options: any) => {
+const defaultLogin = async (options: ILoginInputOptions) => {
   console.error("No default login implementation - have you added an AuthenticationProvider at the top level of your app?")
+}
+
+const defaultLoginHandle = async (handle: string, options: ILoginInputOptions) => {
+  console.error("No default loginHandle implementation - have you added an AuthenticationProvider at the top level of your app?")
 }
 
 const defaultPopupLogin = async () => {
@@ -36,6 +45,7 @@ const defaultLogout = async () => {
 const AuthenticationContext = createContext<Authentication>({
   session: null,
   login: defaultLogin,
+  loginHandle: defaultLoginHandle,
   popupLogin: defaultPopupLogin,
   fetch: defaultFetch,
   logout: defaultLogout
@@ -74,10 +84,23 @@ export const AuthenticationProvider = (props: any) => {
     session,
     fetch: session ? session.fetch : defaultFetch,
 
-    login: session ? async (args: any) => {
-      await session.login(args)
+    login: session ? async (options: ILoginInputOptions = {}) => {
+      const { redirectUrl, ...args } = options
+      await session.login({
+        redirectUrl: redirectUrl || parseUrl(window.location.href),
+        ...args
+      })
       setSession(await sessionManager.getSession("default"))
     } : defaultLogin,
+    loginHandle: session ? async (handle: string, options: ILoginInputOptions = {}) => {
+      const { redirectUrl, ...args } = options
+      await session.login({
+        oidcIssuer: parseUrl(handleToIdp(handle)),
+        redirectUrl: redirectUrl || parseUrl(window.location.href),
+        ...args
+      })
+      setSession(await sessionManager.getSession("default"))
+    } : defaultLoginHandle,
     popupLogin: session ? async (args: any) => {
       await session.login({ popUp: true, ...args })
       setSession(await sessionManager.getSession("default"))
@@ -90,6 +113,16 @@ export const AuthenticationProvider = (props: any) => {
   return (
     <Provider value={value}  {...props} />
   )
+}
+
+export function handleToIdp(handle: string) {
+  try {
+    new URL(handle);
+    // if this doesn't throw, it's a valid URL
+    return handle
+  } catch (_) {
+    return `https://${handle}`
+  }
 }
 
 export const useAuthentication = () => useContext(AuthenticationContext)

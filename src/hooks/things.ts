@@ -67,10 +67,11 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     options.compare = compare || equal
 
     const { data: file, mutate, ...rest } = useSwrld(uri, options)
+    const authFetch = useFetch()
     const save = async (blob: Blob) => {
         if (uri) {
             mutate(blob, false)
-            const savedDataset = await overwriteFile(uri, blob)
+            const savedDataset = await overwriteFile(uri, blob, { fetch: authFetch })
             mutate(blob)
             return savedDataset
         } else {
@@ -96,10 +97,11 @@ export function useMeta(uri: SwrlitKey, options?: SwrlitConfigInterface) {
 
 export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { data: resource, mutate, ...rest } = useSwrld(uri, options)
+    const fetch = useFetch()
     const save = async (newDataset: SolidDataset) => {
         if (uri) {
             mutate(newDataset, false)
-            const savedDataset = await saveSolidDatasetAt(uri, newDataset)
+            const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch })
             mutate(savedDataset)
             return savedDataset
         } else {
