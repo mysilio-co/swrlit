@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import useSWR, { ConfigInterface } from 'swr'
 import {
     Thing, SolidDataset,
@@ -11,6 +11,7 @@ import { ldp } from "rdf-namespaces"
 
 import equal from 'fast-deep-equal/es6'
 import { useAuthentication, fetcherFn } from '../contexts/authentication'
+import { usePubSub } from '../contexts/pubsub'
 
 export function useWebId() {
     const { session } = useAuthentication()
@@ -19,7 +20,8 @@ export function useWebId() {
 
 type SwrlitConfigInterface = ConfigInterface & {
     acl?: boolean,
-    fetch?: fetcherFn<any>
+    fetch?: fetcherFn<any>,
+    subscribe?: boolean
 }
 
 type SwrlitKey = string | null | undefined
@@ -34,7 +36,7 @@ function useFetch(fetcher?: fetcherFn<any>) {
 }
 
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-    const { compare, fetch, acl } = options
+    const { compare, fetch, acl, subscribe = false } = options
     const fetcher = useFetch(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
     options.compare = compare || equal
     const documentURL = uri && new URL(uri)
@@ -42,6 +44,17 @@ export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
         documentURL.hash = ""
     }
     const documentUri = documentURL && documentURL.toString()
+    const { sub } = usePubSub()
+    useEffect(function maybeSubscribe() {
+        async function subscribeToUri() {
+            if (documentUri) {
+                sub(documentUri)
+            }
+        }
+        if (subscribe) {
+            subscribeToUri()
+        }
+    }, [documentUri, subscribe])
     return useSWR(
         documentUri || null,
         fetcher,
@@ -74,14 +87,14 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     )
 }
 
-export function useMeta(uri: SwrlitKey, options = {}) {
+export function useMeta(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
     return ({
         meta, ...rest
     })
 }
 
-export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
+export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { data: resource, mutate, ...rest } = useSwrld(uri, options)
     const save = async (newDataset: SolidDataset) => {
         if (uri) {
@@ -103,7 +116,7 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
     )
 }
 
-export function useThing(uri: SwrlitKey, options = {}) {
+export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
     const thing = resource && uri && getThing(resource, uri)
     const save = async (newThing: Thing) => {
@@ -122,7 +135,7 @@ export function useThing(uri: SwrlitKey, options = {}) {
     )
 }
 
-export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
+export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { data, ...rest } = useSwrld(uri, options)
     const resourceUrls = data && getUrlAll(data, ldp.contains)
     const resources = resourceUrls && resourceUrls.map(url => {
@@ -131,12 +144,12 @@ export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}
     return { resources, ...rest }
 }
 
-export function useProfile(webId: SwrlitKey) {
-    const { thing: profile, ...rest } = useThing(webId)
+export function useProfile(webId: SwrlitKey, options?: SwrlitConfigInterface) {
+    const { thing: profile, ...rest } = useThing(webId, options)
     return { profile, ...rest }
 }
 
-export function useMyProfile() {
+export function useMyProfile(options?: SwrlitConfigInterface) {
     const webId = useWebId()
-    return useProfile(webId)
+    return useProfile(webId, options)
 }
