@@ -12,7 +12,10 @@ import { ldp } from "rdf-namespaces"
 import equal from 'fast-deep-equal/es6'
 import { useAuthentication, fetcherFn } from '../contexts/authentication'
 
-import { useWebId } from './useWebId'
+export function useWebId() {
+    const { session } = useAuthentication()
+    return session && session.info && session.info.webId
+}
 
 type SwrlitConfigInterface = ConfigInterface & {
     acl?: boolean,
