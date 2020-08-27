@@ -126,3 +126,8 @@ export function handleToIdp(handle: string) {
 }
 
 export const useAuthentication = () => useContext(AuthenticationContext)
+
+export const useLoggedIn = () => {
+  const { session } = useAuthentication()
+  return session && session.info && session.info.isLoggedIn
+}
