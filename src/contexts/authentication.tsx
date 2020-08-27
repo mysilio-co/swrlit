@@ -15,8 +15,8 @@ export type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 type Authentication = {
   session: any,
   fetch: fetcherFn<any>,
-  login: (options: ILoginInputOptions) => Promise<void>,
-  loginHandle: (handle: string, options: ILoginInputOptions) => Promise<void>,
+  login: (options?: ILoginInputOptions) => Promise<void>,
+  loginHandle: (handle: string, options?: ILoginInputOptions) => Promise<void>,
   popupLogin: () => Promise<void>,
   logout: () => Promise<void>
 }
@@ -26,11 +26,11 @@ const defaultFetch = async (url: string, options: any) => {
   return window.fetch(url, options)
 }
 
-const defaultLogin = async (options: ILoginInputOptions) => {
+const defaultLogin = async (options?: ILoginInputOptions) => {
   console.error("No default login implementation - have you added an AuthenticationProvider at the top level of your app?")
 }
 
-const defaultLoginHandle = async (handle: string, options: ILoginInputOptions) => {
+const defaultLoginHandle = async (handle: string, options?: ILoginInputOptions) => {
   console.error("No default loginHandle implementation - have you added an AuthenticationProvider at the top level of your app?")
 }
 
