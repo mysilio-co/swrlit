@@ -38,7 +38,6 @@ function useFetch(fetcher?: fetcherFn<any>) {
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     const { compare, fetch, acl, subscribe = false } = options
     const fetcher = useFetch(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
-    console.log(fetcher)
     options.compare = compare || equal
     const documentURL = uri && new URL(uri)
     if (documentURL) {
