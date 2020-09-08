@@ -6,8 +6,8 @@ import {
     getSolidDatasetWithAcl,
     getFile, overwriteFile, getFileWithAcl, asUrl,
     createSolidDataset
-} from '@itme/solid-client'
-import { ldp } from "rdf-namespaces"
+} from '@inrupt/solid-client'
+import { LDP } from "@inrupt/vocab-common-rdf"
 
 import equal from 'fast-deep-equal/es6'
 import { useAuthentication, fetcherFn } from '../contexts/authentication'
@@ -140,7 +140,7 @@ export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
 
 export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
     const { data, ...rest } = useSwrld(uri, options)
-    const resourceUrls = data && getUrlAll(data, ldp.contains)
+    const resourceUrls = data && getUrlAll(data, LDP.contains)
     const resources = resourceUrls && resourceUrls.map(url => {
         return getThing(data, url)
     })

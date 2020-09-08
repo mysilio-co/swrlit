@@ -2,7 +2,7 @@ import React from 'react'
 import { useThing } from './things'
 import { AuthenticationProvider } from '../contexts/authentication'
 import { renderHook } from '@testing-library/react-hooks'
-import { mockSolidDatasetFrom } from '@itme/solid-client'
+import { mockSolidDatasetFrom } from '@inrupt/solid-client'
 
 
 describe("someFunction()", () => {

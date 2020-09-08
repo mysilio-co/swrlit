@@ -6,7 +6,7 @@ import {
   ILoginInputOptions
 } from '@inrupt/solid-client-authn-browser'
 
-import { getSolidDataset } from "@itme/solid-client"
+import { getSolidDataset } from "@inrupt/solid-client"
 import parseUrl from "url-parse";
 
 
