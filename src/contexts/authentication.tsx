@@ -6,7 +6,7 @@ import {
   ILoginInputOptions
 } from '@inrupt/solid-client-authn-browser'
 
-import { getSolidDataset } from "@itme/solid-client"
+import { getSolidDataset } from "@inrupt/solid-client"
 import parseUrl from "url-parse";
 
 
@@ -22,7 +22,6 @@ type Authentication = {
 }
 
 const defaultFetch = async (url: string, options: any) => {
-  console.error("no default fetch implementation - have you added an AuthenticationProvider at the top level of your app - falling back to window.fetch")
   return window.fetch(url, options)
 }
 
@@ -65,7 +64,7 @@ class BrowserStorage {
   }
 }
 
-export const AuthenticationProvider = (props: any) => {
+export function AuthenticationProvider(props: any) {
   const [sessionManager, setSessionManager] = useState<SessionManager>(new SessionManager({
     // this isn't great, but is noted as a problem in the library here:
     //https://github.com/inrupt/solid-client-authn-js/blob/70cd413405667de4abd0e3fde922e7205a6e5e53/src/login/oidc/ClientRegistrar.ts#L77
