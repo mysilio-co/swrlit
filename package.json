@@ -28,9 +28,12 @@
     "@types/solid-auth-client": "^2.4.0",
     "@types/testing-library__react-hooks": "^3.4.0",
     "jest": "^26.4.2",
+    "molid": "^0.3.0",
     "react": "^16.13.1",
     "react-test-renderer": "^16.13.1",
     "rollup": "^2.23.1",
+    "solid-auth-cli": "^1.0.15",
+    "solid-auth-client": "^2.5.0",
     "ts-jest": "^26.3.0",
     "tslib": "^2.0.1",
     "typescript": "^3.9.7"
@@ -47,14 +50,6 @@
     "react": "^16.8.0"
   },
   "jest": {
-    "transform": {
-      ".(ts|tsx)": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ]
+    "preset": "ts-jest/presets/js-with-ts"
   }
 }

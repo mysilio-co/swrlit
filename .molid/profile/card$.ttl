@@ -1,0 +1,35 @@
+@prefix :      <#> .
+@prefix solid: <http://www.w3.org/ns/solid/terms#> .
+@prefix pro:   <./> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix schem: <http://schema.org/> .
+@prefix n1:    <http://www.w3.org/ns/auth/acl#> .
+@prefix ldp:   <http://www.w3.org/ns/ldp#> .
+@prefix inbox: </inbox/> .
+@prefix sp:    <http://www.w3.org/ns/pim/space#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix loc:   </> .
+
+pro:card
+    a foaf:PersonalProfileDocument ;
+    foaf:maker :me ;
+    foaf:primaryTopic :me .
+
+:me
+    a schem:Person,
+foaf:Person ;
+    ldp:inbox inbox: ;
+    sp:preferencesFile </settings/prefs.ttl> ;
+    sp:storage loc: ;
+    solid:account loc: ;
+    solid:privateTypeIndex </settings/privateTypeIndex.ttl> ;
+    solid:publicTypeIndex </settings/publicTypeIndex.ttl> ;
+    foaf:name "A. N. Other" ;
+    vcard:organization-name "Solid Community" ;
+    vcard:role "Mock Profile" ;
+    foaf:img <https://i.pravatar.cc/300> ;
+    vcard:hasAddress :address .
+
+:address
+    vcard:country-name "Germany" ;
+    vcard:locality "Hamburg" .

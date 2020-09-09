@@ -22,7 +22,6 @@ type Authentication = {
 }
 
 const defaultFetch = async (url: string, options: any) => {
-  console.error("no default fetch implementation - have you added an AuthenticationProvider at the top level of your app - falling back to window.fetch")
   return window.fetch(url, options)
 }
 
