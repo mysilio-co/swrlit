@@ -5,7 +5,7 @@ swirl the web in your cup
 ## what's this?
 
 `swrlit` combines the power of [`useSWR`](https://swr.vercel.app/)
-with magic of [`~~lit-pod~~solid-client`](https://github.com/inrupt/solid-client-js) to create
+with magic of Inrupt's [~~`lit-pod`~~`solid-client`](https://github.com/inrupt/solid-client-js) to create
 the swirliest [Solid](https://solidproject.org) data access library
 out there
 
