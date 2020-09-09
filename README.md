@@ -21,7 +21,7 @@ npm install swrlit
 import { useThing } from "swrlit"
 import {
   getUrlAll, getUrl, getStringNoLocale
-} from '@itme/solid-client'
+} from '@inrupt/solid-client'
 import { vcard, foaf } from 'rdf-namespaces'
 
 function Profile({webId}){
