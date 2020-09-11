@@ -8,7 +8,9 @@
   "scripts": {
     "test": "jest",
     "build": "npx rollup -c ",
-    "watch": "npx rollup -c --watch"
+    "watch": "npx rollup -c --watch",
+    "build-api-docs": "typedoc --options typedoc.json",
+    "build-docs-preview-site": ""
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,8 @@
     "solid-auth-client": "^2.5.0",
     "ts-jest": "^26.3.0",
     "tslib": "^2.0.1",
+    "typedoc": "^0.19.1",
+    "typedoc-plugin-markdown": "^2.4.2",
     "typescript": "^3.9.7"
   },
   "dependencies": {
