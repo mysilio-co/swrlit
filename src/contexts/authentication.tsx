@@ -2,13 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
   Session,
   SessionManager,
-  getClientAuthenticationWithDependencies,
-  ILoginInputOptions
 } from '@inrupt/solid-client-authn-browser'
+import {
+  ILoginInputOptions
+} from '@inrupt/solid-client-authn-core'
 
-import { getSolidDataset } from "@inrupt/solid-client"
 import parseUrl from "url-parse";
-
 
 export type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
@@ -25,11 +24,11 @@ const defaultFetch = async (url: string, options: any) => {
   return window.fetch(url, options)
 }
 
-const defaultLogin = async (options?: ILoginInputOptions) => {
+const defaultLogin = async () => {
   console.error("No default login implementation - have you added an AuthenticationProvider at the top level of your app?")
 }
 
-const defaultLoginHandle = async (handle: string, options?: ILoginInputOptions) => {
+const defaultLoginHandle = async () => {
   console.error("No default loginHandle implementation - have you added an AuthenticationProvider at the top level of your app?")
 }
 
@@ -50,7 +49,7 @@ const AuthenticationContext = createContext<Authentication>({
   logout: defaultLogout
 });
 
-const { Provider, Consumer } = AuthenticationContext
+const { Provider } = AuthenticationContext
 
 class BrowserStorage {
   async get(key: string) {
@@ -65,7 +64,7 @@ class BrowserStorage {
 }
 
 export function AuthenticationProvider(props: any) {
-  const [sessionManager, setSessionManager] = useState<SessionManager>(new SessionManager({
+  const [sessionManager] = useState<SessionManager>(new SessionManager({
     // this isn't great, but is noted as a problem in the library here:
     //https://github.com/inrupt/solid-client-authn-js/blob/70cd413405667de4abd0e3fde922e7205a6e5e53/src/login/oidc/ClientRegistrar.ts#L77
     // and in any case is exactly what solid-auth-client was doing
