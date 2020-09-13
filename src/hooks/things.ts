@@ -118,6 +118,15 @@ export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface) {
   )
 }
 
+/**
+ * Use the thing identified by `uri`
+ *
+ * @remarks
+ * This method is part of the {@link core-library#Statistics | Statistics subsystem}.
+ *
+ * @param options - The first input number
+ * @returns a useSWR style response map
+ */
 export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
   const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
   const thing = resource && uri && getThing(resource, uri)
