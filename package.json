@@ -42,7 +42,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@inrupt/solid-client": "file:.yalc/@inrupt/solid-client",
+    "@itme/solid-client": "0.3.0-1",
     "@inrupt/solid-client-authn-browser": "^0.1.1",
     "@inrupt/solid-client-authn-core": "^0.1.4",
     "@inrupt/vocab-common-rdf": "^0.5.5",
