@@ -24,6 +24,21 @@
       "./node_modules/@types"
     ]
   },
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs",
+    "exclude": [
+      "node_modules/**",
+      "**/*.test.ts",
+      // Re-exported functions are already documented in their own modules:
+      "src/index.ts"
+      // utils
+      "src/lib/http.ts"
+    ],
+    "excludeNotExported": true,
+    "stripInternal": true,
+    "readme": "none"
+  }
   "include": [
     "src/**/*"
   ]
