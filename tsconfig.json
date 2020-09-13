@@ -36,8 +36,7 @@
       "src/lib/http.ts"
     ],
     "excludeNotExported": true,
-    "stripInternal": true,
-    "readme": "none"
+    "stripInternal": true
   }
   "include": [
     "src/**/*"
