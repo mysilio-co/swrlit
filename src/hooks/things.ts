@@ -6,7 +6,7 @@ import {
   getSolidDatasetWithAcl,
   getFile, overwriteFile, getFileWithAcl,
   createSolidDataset
-} from '@itme/solid-client'
+} from '@inrupt/solid-client'
 import { LDP } from "@inrupt/vocab-common-rdf"
 
 import equal from 'fast-deep-equal/es6'
