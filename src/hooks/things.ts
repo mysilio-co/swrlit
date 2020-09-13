@@ -121,9 +121,6 @@ export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface) {
 /**
  * Use the thing identified by `uri`
  *
- * @remarks
- * This method is part of the {@link core-library#Statistics | Statistics subsystem}.
- *
  * @param options - The first input number
  * @returns a useSWR style response map
  */
