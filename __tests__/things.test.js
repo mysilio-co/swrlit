@@ -4,7 +4,7 @@ import { givenMolid } from 'molid/lib/molid-jest';
 import {
     mockSolidDatasetFrom, mockThingFrom, setThing, setStringNoLocale,
     getStringNoLocale
-} from '@inrupt/solid-client'
+} from '@itme/solid-client'
 import { FOAF } from "@inrupt/vocab-common-rdf"
 
 import { AuthenticationProvider } from '../src/contexts/authentication'
