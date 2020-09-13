@@ -9,6 +9,10 @@ with magic of Inrupt's [~~`lit-pod`~~`solid-client`](https://github.com/inrupt/s
 the swirliest [Solid](https://solidproject.org) data access library
 out there
 
+## how do I use it?
+
+see the examples below or [read the docs](https://swrlit.me)
+
 ## install
 
 ``` sh
