@@ -17,6 +17,8 @@ npm install swrlit
 
 ## examples
 
+### Get data from a Pod
+
 ``` typescript
 import { useThing } from "swrlit"
 import {
@@ -37,7 +39,28 @@ function Profile({webId}){
 }
 ```
 
+### Create data in a Pod
+
+
 ``` typescript
+import { useWebId, useContainer, useProfile, useEnsured, AuthenticationProvider } from "swrlit"
+import {
+  createThing, setThing, addUrl, setStringNoLocale,
+  saveSolidDatasetInContainer, createSolidDataset
+} from '@itme/solid-client'
+import { WS } from '@inrupt/vocab-solid-common'
+
+export function useStorageContainer(webId) {
+  const { profile } = useProfile(webId)
+  return profile && getUrl(profile, WS.storage)
+}
+
+export function useTimelogContainerUri(webId, path = 'public') {
+  const storageContainer = useStorageContainer(webId)
+  return useEnsured(storageContainer && `${storageContainer}${path}/timelogs/`)
+}
+
+function TimeLogCreator(){
   const myWebId = useWebId()
   const timelogContainerUri = useTimelogContainerUri(myWebId, 'private')
   const { resources: timelogs, mutate: mutateTimelogs } = useContainer(timelogContainerUri)
@@ -53,6 +76,21 @@ function Profile({webId}){
     await saveSolidDatasetInContainer(timelogContainerUri, dataset, { slugSuggestion: name })
     mutateTimelogs()
   }
+
+  return (
+    <div>
+      <button onClick={createTimelog}>Create Timelog</button>
+    </div>
+  )
+}
+
+function App(){
+  return (
+    <AuthenticationProvider>
+      <TimeLogCreator/>
+    </AuthenticationProvider>
+  )
+}
 ```
 
 See
