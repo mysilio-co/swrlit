@@ -1,5 +1,9 @@
 node_modules
+
 dist
+esm
+
+docs
+
 .yalc
 yalc.lock
-esm
