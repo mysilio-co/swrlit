@@ -21,7 +21,7 @@ npm install swrlit
 
 ## examples
 
-### Get data from a Pod
+### get data from a pod
 
 ``` typescript
 import { useThing } from "swrlit"
@@ -43,7 +43,7 @@ function Profile({webId}){
 }
 ```
 
-### Create data in a Pod
+### create data in a pod
 
 
 ``` typescript
