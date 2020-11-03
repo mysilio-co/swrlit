@@ -2,12 +2,13 @@ import { useEffect } from 'react'
 import useSWR, { ConfigInterface } from 'swr'
 import {
   Thing, SolidDataset,
-  getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll,
+  getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll, getUrl,
   getSolidDatasetWithAcl,
   getFile, overwriteFile, getFileWithAcl,
   createSolidDataset
 } from '@inrupt/solid-client'
 import { LDP } from "@inrupt/vocab-common-rdf"
+import { WS } from '@inrupt/vocab-solid-common'
 
 import equal from 'fast-deep-equal/es6'
 import { useAuthentication, fetcherFn } from '../contexts/authentication'
@@ -155,6 +156,11 @@ export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
 export function useProfile(webId: SwrlitKey, options?: SwrlitConfigInterface) {
   const { thing: profile, ...rest } = useThing(webId, options)
   return { profile, ...rest }
+}
+
+export function useStorageContainer(webId: SwrlitKey) {
+    const { profile } = useProfile(webId)
+    return profile && getUrl(profile, WS.storage)
 }
 
 export function useMyProfile(options?: SwrlitConfigInterface) {
