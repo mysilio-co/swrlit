@@ -13,11 +13,20 @@ out there
 
 see the examples below or [read the docs](https://swrlit.me)
 
-## install
+## install in an existing project
 
 ``` sh
 npm install swrlit
 ```
+
+## create a new swrlit app with Next.js and Tailwind CSS
+
+``` sh
+npx create-next-app --use-npm --example https://github.com/itme/nextjs-swrlit-tailwindcss nextjs-swrlit-tailwindcss-app
+# or
+yarn create next-app --example https://github.com/itme/nextjs-swrlit-tailwindcss nextjs-swrlit-tailwindcss-app
+```
+
 
 ## examples
 
