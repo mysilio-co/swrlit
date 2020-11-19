@@ -1,61 +1,87 @@
 {
   "name": "swrlit",
-  "version": "0.2.0",
-  "description": "swirl the web in your glass",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "files": "dist",
-  "scripts": {
-    "test": "jest",
-    "build": "rollup --config rollup.config.js",
-    "build:docs": "typedoc  --tsconfig tsconfig.json",
-    "watch": "tsc --watch",
-    "types:check": "tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/itmedev/swrlit.git"
-  },
+  "version": "0.3.0",
   "author": "Travis Vachon",
+  "description": "swirl the web in your glass",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/itmedev/swrlit/issues"
   },
   "homepage": "https://github.com/itmedev/swrlit#readme",
+  "main": "dist/index.js",
+  "module": "dist/swrlit.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "size-limit": [
+    {
+      "path": "dist/swrlit.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/swrlit.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "peerDependencies": {
+    "react": ">=16"
+  },
   "devDependencies": {
-    "@testing-library/react-hooks": "^3.4.1",
-    "@types/jest": "^26.0.10",
-    "@types/react": "^16.9.45",
-    "@types/solid-auth-client": "^2.4.0",
-    "@types/testing-library__react-hooks": "^3.4.0",
-    "@vercel/ncc": "^0.24.0",
-    "jest": "^26.4.2",
-    "molid": "^0.3.0",
-    "react": "^16.13.1",
-    "react-test-renderer": "^16.13.1",
-    "rollup": "^2.26.11",
-    "rollup-plugin-typescript2": "^0.27.2",
-    "solid-auth-cli": "^1.0.15",
-    "solid-auth-client": "^2.5.0",
-    "ts-jest": "^26.3.0",
-    "tslib": "^2.0.1",
-    "typedoc": "^0.19.1",
-    "typescript": "^3.9.7"
+    "@babel/core": "^7.12.3",
+    "@size-limit/preset-small-lib": "^4.8.0",
+    "@storybook/addon-essentials": "^6.0.28",
+    "@storybook/addon-info": "^5.3.21",
+    "@storybook/addon-links": "^6.0.28",
+    "@storybook/addons": "^6.0.28",
+    "@storybook/react": "^6.0.28",
+    "@types/react": "^16.9.56",
+    "@types/react-dom": "^16.9.9",
+    "babel-loader": "^8.2.1",
+    "husky": "^4.3.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-is": "^17.0.1",
+    "size-limit": "^4.8.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.0.3",
+    "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@inrupt/solid-client": "^1.0.0",
+    "@inrupt/solid-client": "^1.1.0",
     "@inrupt/solid-client-authn-browser": "^1.0.0",
     "@inrupt/solid-client-authn-core": "^1.0.0",
-    "@inrupt/vocab-common-rdf": "^0.5.5",
-    "@inrupt/vocab-solid-common": "^0.6.2",
+    "@inrupt/vocab-common-rdf": "^0.6.3",
+    "@inrupt/vocab-solid-common": "^0.6.3",
+    "@types/url-parse": "^1.4.3",
     "fast-deep-equal": "^3.1.3",
-    "swr": "^0.2.3",
+    "swr": "^0.3.9",
     "url-parse": "^1.4.7"
-  },
-  "peerDependencies": {
-    "react": "^16.8.0"
-  },
-  "jest": {
-    "preset": "ts-jest/presets/js-with-ts"
   }
 }

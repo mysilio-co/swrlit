@@ -7,8 +7,6 @@ import {
   ILoginInputOptions
 } from '@inrupt/solid-client-authn-core'
 
-import parseUrl from "url-parse";
-
 export type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
 type Authentication = {
@@ -85,7 +83,7 @@ export function AuthenticationProvider(props: any) {
     login: session ? async (options: ILoginInputOptions = {}) => {
       const { redirectUrl, ...args } = options
       await session.login({
-        redirectUrl: redirectUrl || parseUrl(window.location.href),
+        redirectUrl: redirectUrl || window.location.href,
         ...args
       })
       setSession(await sessionManager.getSession("default"))
@@ -93,8 +91,8 @@ export function AuthenticationProvider(props: any) {
     loginHandle: session ? async (handle: string, options: ILoginInputOptions = {}) => {
       const { redirectUrl, ...args } = options
       await session.login({
-        oidcIssuer: parseUrl(handleToIdp(handle)),
-        redirectUrl: redirectUrl || parseUrl(window.location.href),
+        oidcIssuer: handleToIdp(handle),
+        redirectUrl: redirectUrl || window.location.href,
         ...args
       })
       setSession(await sessionManager.getSession("default"))

@@ -89,14 +89,18 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   )
 }
 
-export function useMeta(uri: SwrlitKey, options?: SwrlitConfigInterface) {
+type SwrldResult = any
+type ResourceResult = SwrldResult | {save: any}
+type MetaResult = ResourceResult | {meta: any}
+
+export function useMeta(uri: SwrlitKey, options?: SwrlitConfigInterface): MetaResult {
   const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
   return ({
     meta, ...rest
   })
 }
 
-export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface) {
+export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface): ResourceResult {
   const { data: resource, mutate, ...rest } = useSwrld(uri, options)
   const fetch = useFetch()
   const save = async (newDataset: SolidDataset) => {
