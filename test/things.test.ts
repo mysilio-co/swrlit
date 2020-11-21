@@ -1,18 +1,15 @@
+import 'whatwg-fetch'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { givenMolid } from 'molid/lib/molid-jest';
 
-import {
-    mockSolidDatasetFrom, mockThingFrom, setThing, setStringNoLocale,
-    getStringNoLocale
-} from '@inrupt/solid-client'
+import { setStringNoLocale, getStringNoLocale } from '@inrupt/solid-client'
 import { FOAF } from "@inrupt/vocab-common-rdf"
 
-import { AuthenticationProvider } from '../src/contexts/authentication'
 import { useThing, useStorageContainer } from '../src/hooks/things'
 
-const webId = molid => molid.uri("/profile/card#me")
+const webId = (molid: any) => molid.uri("/profile/card#me")
 
-givenMolid('default', molid => {
+givenMolid('default', (molid: any) => {
   describe("useThing()", () => {
     test("includes a thing from the underlying resource", async () => {
       const { result, waitForValueToChange } = renderHook(
@@ -34,7 +31,7 @@ givenMolid('default', molid => {
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
 
       act(() => {
-        const { mutate, thing } = result.current
+        const { mutate } = result.current
         mutate(setStringNoLocale(result.current.thing, FOAF.name, "O. N. E. Moore"))
       })
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("O. N. E. Moore");
@@ -51,7 +48,7 @@ givenMolid('default', molid => {
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
 
       act(() => {
-        const { save, thing } = result.current
+        const { save } = result.current
         save(setStringNoLocale(result.current.thing, FOAF.name, "O. N. E. Moore"))
       })
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("O. N. E. Moore");
