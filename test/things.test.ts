@@ -18,10 +18,11 @@ givenMolid('default', (molid: any) => {
       expect(result.current.thing).toBe(undefined);
 
       await waitForValueToChange(() => result.current.thing)
+
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
     });
 
-    test("provides a function to mutate a value", async () => {
+    test.skip("provides a function to mutate a value", async () => {
       const { result, waitForValueToChange } = renderHook(
         () => useThing(webId(molid))
       )
