@@ -1,11 +1,66 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
-  Session,
-  SessionManager,
-} from '@inrupt/solid-client-authn-browser'
-import {
-  ILoginInputOptions
-} from '@inrupt/solid-client-authn-core'
+  getSession,
+  fetch,
+  login,
+  logout
+} from 'solid-auth-fetcher'
+
+// THESE TYPES ARE FROM solid-auth-fetcher
+// TODO: patch solid-auth-fetcher to export these types so we can use them here
+
+type ILoginInputOptions =
+  | (IIssuerLoginInputOptions & IRedirectLoginInputOptions)
+  | (IIssuerLoginInputOptions & IPopupLoginInputOptions)
+  | (IWebIdLoginInputOptions & IRedirectLoginInputOptions)
+  | (IWebIdLoginInputOptions & IPopupLoginInputOptions);
+
+interface ICoreLoginInuptOptions {
+  state?: string;
+  clientId?: string;
+  doNotAutoRedirect?: boolean;
+  clientName?: string;
+}
+
+interface IIssuerLoginInputOptions extends ICoreLoginInuptOptions {
+  webId: string;
+}
+
+interface IWebIdLoginInputOptions extends ICoreLoginInuptOptions {
+  oidcIssuer: string;
+}
+
+interface IRedirectLoginInputOptions extends ICoreLoginInuptOptions {
+  redirect: string;
+}
+
+interface IPopupLoginInputOptions extends ICoreLoginInuptOptions {
+  popUp: boolean;
+  popUpRedirectPath: string;
+}
+
+type ISolidSession = ILoggedInSolidSession | ILoggedOutSolidSession;
+
+interface INeededAction {
+  actionType: string;
+}
+interface ICoreSolidSession {
+  localUserId: string;
+  neededAction: INeededAction;
+}
+
+export interface ILoggedInSolidSession extends ICoreSolidSession {
+  loggedIn: true;
+  webId: string;
+  state?: string;
+  logout: () => Promise<void>;
+  fetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
+}
+
+interface ILoggedOutSolidSession extends ICoreSolidSession {
+  loggedIn: false;
+}
+import type ILoginInputOptions from 'solid-auth-fetcher'
 
 export type fetcherFn<Data> = (...args: any) => Data | Promise<Data>
 
@@ -49,62 +104,42 @@ const AuthenticationContext = createContext<Authentication>({
 
 const { Provider } = AuthenticationContext
 
-class BrowserStorage {
-  async get(key: string) {
-    return window.localStorage.getItem(key) || undefined;
-  }
-  async set(key: string, value: any) {
-    window.localStorage.setItem(key, value);
-  }
-  async delete(key: string) {
-    window.localStorage.removeItem(key);
-  }
-}
-
 export function AuthenticationProvider(props: any) {
-  const [sessionManager] = useState<SessionManager>(new SessionManager({
-    // this isn't great, but is noted as a problem in the library here:
-    //https://github.com/inrupt/solid-client-authn-js/blob/70cd413405667de4abd0e3fde922e7205a6e5e53/src/login/oidc/ClientRegistrar.ts#L77
-    // and in any case is exactly what solid-auth-client was doing
-    secureStorage: new BrowserStorage()
-  }));
-  const [session, setSession] = useState<Session | undefined>()
+  const [session, setSession] = useState<ISolidSession | null>()
   useEffect(() => {
     async function fetchSession() {
-      setSession(await sessionManager.getSession("default"))
+      setSession(await getSession() || {
+        loggedIn: false,
+        localUserId: Math.random().toString(),
+        neededAction: {actionType: ""}
+      })
     }
     fetchSession()
   }, [])
 
   const value = ({
     session,
-    fetch: session ? session.fetch : defaultFetch,
+    fetch,
 
-    login: session ? async (options: ILoginInputOptions = {}) => {
-      const { redirectUrl, ...args } = options
-      await session.login({
-        redirectUrl: redirectUrl || window.location.href,
-        ...args
+    login: async (options: ILoginInputOptions = {oidcIssuer: "", popUp: false, popUpRedirectPath: window.location.href, redirect: window.location.href}) => {
+      await login(options)
+      setSession(await getSession())
+    },
+    loginHandle: async (handle: string, options: ILoginInputOptions = {oidcIssuer: "", popUp: false, popUpRedirectPath: window.location.href, redirect: window.location.href}) => {
+      await login({
+        ...options,
+        oidcIssuer: handleToIdp(handle).toString()
       })
-      setSession(await sessionManager.getSession("default"))
-    } : defaultLogin,
-    loginHandle: session ? async (handle: string, options: ILoginInputOptions = {}) => {
-      const { redirectUrl, ...args } = options
-      await session.login({
-        oidcIssuer: handleToIdp(handle),
-        redirectUrl: redirectUrl || window.location.href,
-        ...args
-      })
-      setSession(await sessionManager.getSession("default"))
-    } : defaultLoginHandle,
-    popupLogin: session ? async (args: any) => {
-      await session.login({ popUp: true, ...args })
-      setSession(await sessionManager.getSession("default"))
-    } : defaultPopupLogin,
-    logout: session ? async () => {
-      await session.logout()
-      setSession(await sessionManager.getSession("default"))
-    } : defaultLogout
+      setSession(await getSession())
+    },
+    popupLogin: async (args: any) => {
+      await login({ popUp: true, ...args })
+      setSession(await getSession())
+    },
+    logout: async () => {
+      await logout()
+      setSession(await getSession())
+    }
   })
   return (
     <Provider value={value}  {...props} />
@@ -125,5 +160,5 @@ export const useAuthentication = () => useContext(AuthenticationContext)
 
 export const useLoggedIn = () => {
   const { session } = useAuthentication()
-  return session && session.info && session.info.isLoggedIn
+  return session && session.loggedIn
 }
