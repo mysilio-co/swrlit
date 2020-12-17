@@ -5,9 +5,9 @@
   "description": "swirl the web in your glass",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/itmedev/swrlit/issues"
+    "url": "https://github.com/itme/swrlit/issues"
   },
-  "homepage": "https://github.com/itmedev/swrlit#readme",
+  "homepage": "https://swrlit.me/",
   "main": "dist/index.js",
   "module": "dist/swrlit.esm.js",
   "typings": "dist/index.d.ts",
