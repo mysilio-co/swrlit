@@ -11,13 +11,8 @@ import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
 import equal from 'fast-deep-equal/es6'
-import { useAuthentication, fetcherFn } from '../contexts/authentication'
+import { useAuthentication, fetcherFn, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
-
-export function useWebId() {
-  const { session } = useAuthentication()
-  return session && session.info && session.info.webId
-}
 
 type SwrlitConfigInterface = ConfigInterface & {
   acl?: boolean,

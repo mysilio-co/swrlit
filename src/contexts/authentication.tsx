@@ -162,3 +162,8 @@ export const useLoggedIn = () => {
   const { session } = useAuthentication()
   return session && session.loggedIn
 }
+
+export function useWebId() {
+  const { session } = useAuthentication()
+  return session && session.webId
+}
