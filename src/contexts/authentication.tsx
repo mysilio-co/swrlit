@@ -1,13 +1,27 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
   getSession,
-  fetch,
   login,
+  fetch,
   logout
 } from 'solid-auth-fetcher'
 
 // THESE TYPES ARE FROM solid-auth-fetcher
 // TODO: patch solid-auth-fetcher to export these types so we can use them here
+
+const fetcher = async (url: any, options: any) => {
+  const res = await fetch(url, options)
+  // If the status code is not in the range 200-299,
+  // we still try to parse and throw it.
+  if (!res.ok) {
+    const error: any = new Error('An error occurred while fetching the data.')
+    error.info = await res.text(),
+    error.status = res.status
+    throw error
+  }
+  return res
+}
+
 
 type ILoginInputOptions =
   | (IIssuerLoginInputOptions & IRedirectLoginInputOptions)
@@ -119,7 +133,7 @@ export function AuthenticationProvider(props: any) {
 
   const value = ({
     session,
-    fetch,
+    fetch: fetcher,
 
     login: async (options: ILoginInputOptions = {oidcIssuer: "", popUp: false, popUpRedirectPath: window.location.href, redirect: window.location.href}) => {
       await login(options)
