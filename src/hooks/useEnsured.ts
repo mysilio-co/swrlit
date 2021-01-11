@@ -5,21 +5,20 @@ import { useAuthentication } from '../contexts/authentication'
 
 export function useEnsured(url: string | undefined | null) {
   const [ensuredUrl, setEnsuredUrl] = useState<string | undefined | null>()
-  const { session } = useAuthentication()
+  const { fetch } = useAuthentication()
   useEffect(() => {
     async function ensureUrl(u: string) {
-      if (await resourceExists(session, u)) {
+      if (await resourceExists(fetch, u)) {
         setEnsuredUrl(u)
       } else {
-        await createDocument(session, `${u}.dummy`)
-        await deleteFile(session, `${u}.dummy`)
+        await createDocument(fetch, `${u}.dummy`)
+        await deleteFile(fetch, `${u}.dummy`)
         setEnsuredUrl(u)
       }
-
     }
-    if (url && session) {
+    if (url && fetch) {
       ensureUrl(url)
     }
-  }, [url, session])
+  }, [url, fetch])
   return ensuredUrl
 }

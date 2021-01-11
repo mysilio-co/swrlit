@@ -1,19 +1,19 @@
-import { ILoggedInSolidSession } from '../contexts/authentication'
+import { fetcherFn } from '../contexts/authentication'
 
-export const resourceExists = async (auth: ILoggedInSolidSession, resourcePath: string) => {
-    const result = await auth.fetch(resourcePath, { method: 'HEAD' });
+export const resourceExists = async (fetch: fetcherFn<any>, resourcePath: string) => {
+    const result = await fetch(resourcePath, { method: 'HEAD' });
     return result.status === 403 || result.status === 200;
 };
 
-export const createDoc = async (auth: ILoggedInSolidSession, documentUri: string, options: any) => {
+export const createDoc = async (fetch: fetcherFn<any>, documentUri: string, options: any) => {
     try {
-        return await auth.fetch(documentUri, options);
+        return await fetch(documentUri, options);
     } catch (e) {
         throw e;
     }
 };
 
-export const createDocument = async (auth: ILoggedInSolidSession, documentUri: string, body = '') => {
+export const createDocument = async (fetch: fetcherFn<any>, documentUri: string, body = '') => {
     try {
         const options = {
             method: 'PUT',
@@ -22,15 +22,15 @@ export const createDocument = async (auth: ILoggedInSolidSession, documentUri: s
             },
             body
         };
-        return await createDoc(auth, documentUri, options);
+        return await createDoc(fetch, documentUri, options);
     } catch (e) {
         throw e;
     }
 };
 
-export const deleteFile = async (auth: ILoggedInSolidSession, url: string) => {
+export const deleteFile = async (fetch: fetcherFn<any>, url: string) => {
     try {
-        return await auth.fetch(url, { method: 'DELETE' });
+        return await fetch(url, { method: 'DELETE' });
     } catch (e) {
         throw e;
     }
