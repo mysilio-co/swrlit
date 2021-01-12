@@ -1,8 +1,17 @@
 import { fetcherFn } from '../contexts/authentication'
 
 export const resourceExists = async (fetch: fetcherFn<any>, resourcePath: string) => {
+  try {
     const result = await fetch(resourcePath, { method: 'HEAD' });
     return result.status === 403 || result.status === 200;
+
+  } catch (e) {
+    if (e.status === 404){
+      return false
+    } else {
+      throw e
+    }
+  }
 };
 
 export const createDoc = async (fetch: fetcherFn<any>, documentUri: string, options: any) => {
