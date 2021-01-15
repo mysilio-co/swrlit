@@ -145,7 +145,8 @@ export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
 
 export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
   const { data, ...rest } = useSwrld(uri, options)
-  const resourceUrls = data && getUrlAll(data, LDP.contains)
+  const container = data && uri && getThing(data, uri)
+  const resourceUrls = container && getUrlAll(container, LDP.contains)
   const resources = resourceUrls && resourceUrls.map((url: string) => {
     return getThing(data, url)
   })
