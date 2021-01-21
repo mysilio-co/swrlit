@@ -2,27 +2,111 @@ import 'whatwg-fetch'
 import { renderHook, act } from '@testing-library/react-hooks'
 import { givenMolid } from 'molid/lib/molid-jest';
 
-import { setStringNoLocale, getStringNoLocale } from '@inrupt/solid-client'
+import {
+  setStringNoLocale, getStringNoLocale, mockSolidDatasetFrom,
+  setThing, createThing
+} from '@inrupt/solid-client'
 import { FOAF } from "@inrupt/vocab-common-rdf"
+import { cache } from "swr";
 
-import { useThing, useStorageContainer } from '../src/hooks/things'
+import { useThing,
+         useStorageContainer
+       } from '../src/hooks/things'
+
+afterEach(() => {
+  cache.clear();
+});
+
+const mockProfile = () => setStringNoLocale(createThing({url: "https://example.com/profile/card#me"}), FOAF.name, "A. N. Other")
+const mockProfileResource = () => setThing(mockSolidDatasetFrom("https://example.com/profile/card"), mockProfile())
+
+const newMockFetch = () => {
+  const fetcher = jest.fn()
+  var resolve: any
+  var reject: any
+  const fetchResult = new Promise((res, rej) => {
+    resolve = res
+    reject = rej
+  })
+  fetcher.mockReturnValueOnce(fetchResult)
+  return { resolve, reject, fetch: fetcher }
+}
+
+describe("useThing() unit tests", () => {
+  test("fetches and returns a thing that exists", async () => {
+    const { fetch, resolve } = newMockFetch()
+    const { result, waitForValueToChange } = renderHook(
+      () => useThing("https://example.com/profile/card#me", { fetch })
+    )
+
+    expect(result.current.thing).toBe(undefined);
+
+    act(() => {
+      resolve(mockProfileResource())
+    })
+    await waitForValueToChange(() => result.current.thing)
+
+    expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
+  });
+
+
+  test("returns null if the resource exists but the thing doesn't", async () => {
+    const { fetch, resolve } = newMockFetch()
+    const { result, waitForValueToChange } = renderHook(
+      () => useThing("https://example.com/profile/card#you", { fetch })
+    )
+    expect(result.current.thing).toBe(undefined);
+    act(() => {
+      resolve(mockProfileResource())
+    })
+
+    await waitForValueToChange(() => result.current.thing)
+
+    expect(result.current.thing).toEqual(null);
+  });
+})
+
+
 
 const webId = (molid: any) => molid.uri("/profile/card#me")
+const nonExistantThing = (molid: any) => molid.uri("/profile/card#you")
+const fourOhFour = (molid: any) => molid.uri("/this/probably/doesnt/exist")
+
 
 givenMolid('default', (molid: any) => {
-  describe("useThing()", () => {
-    test("includes a thing from the underlying resource", async () => {
+  describe("useThing() integration tests", () => {
+    test("fetches and returns a thing that exists", async () => {
       const { result, waitForValueToChange } = renderHook(
         () => useThing(webId(molid))
       )
       expect(result.current.thing).toBe(undefined);
-
       await waitForValueToChange(() => result.current.thing)
 
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
     });
 
-    test.skip("provides a function to mutate a value", async () => {
+    test("returns null if the resource exists but the thing doesn't", async () => {
+      const { result, waitForValueToChange } = renderHook(
+        () => useThing(nonExistantThing(molid))
+      )
+      expect(result.current.thing).toBe(undefined);
+      await waitForValueToChange(() => result.current.thing)
+
+      expect(result.current.thing).toEqual(null);
+    });
+
+    test("returns an error with status 404 if the resource doesn't exist", async () => {
+      const { result, waitForValueToChange } = renderHook(
+        () => useThing(fourOhFour(molid))
+      )
+      expect(result.current.thing).toBe(undefined);
+      await waitForValueToChange(() => result.current.error)
+
+      expect(result.current.thing).toEqual(undefined);
+      expect(result.current.error.statusCode).toEqual(404);
+    });
+
+    test("provides a function to mutate a value", async () => {
       const { result, waitForValueToChange } = renderHook(
         () => useThing(webId(molid))
       )
@@ -35,6 +119,7 @@ givenMolid('default', (molid: any) => {
         const { mutate } = result.current
         mutate(setStringNoLocale(result.current.thing, FOAF.name, "O. N. E. Moore"))
       })
+      await waitForValueToChange(() => result.current.thing)
       expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("O. N. E. Moore");
     });
 

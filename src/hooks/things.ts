@@ -63,7 +63,7 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   options.compare = compare || equal
 
   const { data: file, mutate, ...rest } = useSwrld(uri, options)
-  const authFetch = useFetch()
+  const authFetch = useFetch(options && options.fetch)
   const save = async (blob: Blob) => {
     if (uri) {
       mutate(blob, false)
@@ -88,16 +88,16 @@ type SwrldResult = any
 type ResourceResult = SwrldResult | {save: any}
 type MetaResult = ResourceResult | {meta: any}
 
-export function useMeta(uri: SwrlitKey, options?: SwrlitConfigInterface): MetaResult {
+export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): MetaResult {
   const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
   return ({
     meta, ...rest
   })
 }
 
-export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface): ResourceResult {
+export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
   const { data: resource, mutate, ...rest } = useSwrld(uri, options)
-  const fetch = useFetch()
+  const fetch = useFetch(options.fetch)
   const save = async (newDataset: SolidDataset) => {
     if (uri) {
       mutate(newDataset, false)
@@ -124,7 +124,7 @@ export function useResource(uri: SwrlitKey, options?: SwrlitConfigInterface): Re
  * @param options - The first input number
  * @returns a useSWR style response map
  */
-export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
+export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
   const thing = resource && uri && getThing(resource, uri)
   const save = async (newThing: Thing) => {
@@ -143,7 +143,7 @@ export function useThing(uri: SwrlitKey, options?: SwrlitConfigInterface) {
   )
 }
 
-export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
+export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { data, ...rest } = useSwrld(uri, options)
   const container = data && uri && getThing(data, uri)
   const resourceUrls = container && getUrlAll(container, LDP.contains)
@@ -153,7 +153,7 @@ export function useContainer(uri: SwrlitKey, options?: SwrlitConfigInterface) {
   return { resources, ...rest }
 }
 
-export function useProfile(webId: SwrlitKey, options?: SwrlitConfigInterface) {
+export function useProfile(webId: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { thing: profile, ...rest } = useThing(webId, options)
   return { profile, ...rest }
 }
@@ -163,7 +163,7 @@ export function useStorageContainer(webId: SwrlitKey) {
     return profile && getUrl(profile, WS.storage)
 }
 
-export function useMyProfile(options?: SwrlitConfigInterface) {
+export function useMyProfile(options: SwrlitConfigInterface = {}) {
   const webId = useWebId()
   return useProfile(webId, options)
 }
