@@ -1,5 +1,6 @@
 import 'whatwg-fetch'
-import { renderHook, act } from '@testing-library/react-hooks'
+import { act } from '@testing-library/react-hooks'
+import { renderHook } from './utils'
 import { givenMolid } from 'molid/lib/molid-jest';
 
 import {
