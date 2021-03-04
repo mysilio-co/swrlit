@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import useSWR, { ConfigInterface } from 'swr'
 import {
   Thing, SolidDataset,
@@ -98,8 +98,8 @@ export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Me
 export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
   const { data: resource, mutate, ...rest } = useSwrld(uri, options)
   const fetch = useFetch(options.fetch)
-  const save = async (newDataset: SolidDataset) => {
-    if (uri) {
+  const saveResource = useCallback(async function (newDataset: SolidDataset){
+    if (uri){
       mutate(newDataset, false)
       const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch })
       mutate(savedDataset)
@@ -107,12 +107,12 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
     } else {
       throw new Error(`could not save dataset with uri of ${uri}`)
     }
-  }
+  }, [uri, fetch])
   return (
     {
       resource,
       mutate,
-      save,
+      save: uri && saveResource,
       ...rest
     }
   )
@@ -127,15 +127,15 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
 export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
   const thing = resource && uri && getThing(resource, uri)
-  const save = async (newThing: Thing) => {
+  const saveThing = useCallback(async (newThing: Thing) => {
     const newDataset = setThing(resource || createSolidDataset(), newThing)
     return saveResource(newDataset)
-  }
+  }, [resource, saveResource])
   return (
     {
       thing,
       mutate,
-      save,
+      save: uri && saveThing,
       resource,
       saveResource,
       ...rest

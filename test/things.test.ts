@@ -50,7 +50,6 @@ describe("useThing() unit tests", () => {
     expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
   });
 
-
   test("returns null if the resource exists but the thing doesn't", async () => {
     const { fetch, resolve } = newMockFetch()
     const { result, waitForValueToChange } = renderHook(
@@ -64,6 +63,16 @@ describe("useThing() unit tests", () => {
     await waitForValueToChange(() => result.current.thing)
 
     expect(result.current.thing).toEqual(null);
+  });
+
+  test("returns a function if a uri is passed and does not otherwise", async () => {
+    const { result: uriDefinedResult } = renderHook(() => useThing("https://example.com/profile/card#me"))
+
+    expect(uriDefinedResult.current.save).toBeInstanceOf(Function);
+
+    const { result: uriUndefinedResult } = renderHook(() => useThing(undefined))
+
+    expect(uriUndefinedResult.current.save).toBe(undefined);
   });
 })
 
