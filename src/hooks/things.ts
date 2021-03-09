@@ -13,6 +13,7 @@ import { WS } from '@inrupt/vocab-solid-common'
 import equal from 'fast-deep-equal/es6'
 import { useAuthentication, fetcherFn, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
+import { useMemoCompare } from './react'
 
 type SwrlitConfigInterface = ConfigInterface & {
   acl?: boolean,
@@ -126,7 +127,8 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
  */
 export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
-  const thing = resource && uri && getThing(resource, uri)
+  const thisThing = resource && uri && getThing(resource, uri)
+  const thing = useMemoCompare(thisThing, equal)
   const saveThing = useCallback(async (newThing: Thing) => {
     const newDataset = setThing(resource || createSolidDataset(), newThing)
     return saveResource(newDataset)
