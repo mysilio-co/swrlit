@@ -10,7 +10,7 @@ import {
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
-import equal from 'fast-deep-equal/es6'
+import { dequal } from 'dequal'
 import { useAuthentication, fetcherFn, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
@@ -33,9 +33,8 @@ function useFetch(fetcher?: fetcherFn<any>) {
 }
 
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { compare, fetch, acl, subscribe = false } = options
+  const { fetch, acl, subscribe = false } = options
   const fetcher = useFetch(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
-  options.compare = compare || equal
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""
@@ -59,9 +58,8 @@ export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
 }
 
 export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { compare, acl, fetch } = options
+  const { acl, fetch } = options
   options.fetch = fetch || (acl ? getFileWithAcl : getFile)
-  options.compare = compare || equal
 
   const { data: file, mutate, ...rest } = useSwrld(uri, options)
   const authFetch = useFetch(options && options.fetch)
@@ -128,7 +126,7 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
 export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
   const thisThing = resource && uri && getThing(resource, uri)
-  const thing = useMemoCompare(thisThing, equal)
+  const thing = useMemoCompare(thisThing, dequal)
   const saveThing = useCallback(async (newThing: Thing) => {
     const newDataset = setThing(resource || createSolidDataset(), newThing)
     return saveResource(newDataset)
