@@ -1,6 +1,6 @@
 {
   "name": "swrlit",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "author": "Travis Vachon",
   "description": "swirl the web in your glass",
   "license": "MIT",
@@ -74,7 +74,7 @@
     "size-limit": "^4.8.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.0.3",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.20.36",
     "typescript": "^4.0.5",
     "whatwg-fetch": "^3.5.0"
   },
