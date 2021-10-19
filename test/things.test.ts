@@ -65,7 +65,7 @@ describe("useThing() unit tests", () => {
     expect(result.current.thing).toEqual(null);
   });
 
-  test("returns a function if a uri is passed and does not otherwise", async () => {
+  test("returns a save function if a uri is passed and does not otherwise", async () => {
     const { result: uriDefinedResult } = renderHook(() => useThing("https://example.com/profile/card#me"))
 
     expect(uriDefinedResult.current.save).toBeInstanceOf(Function);
