@@ -1,5 +1,6 @@
-import { useEffect, useCallback } from 'react'
-import useSWR, { ConfigInterface } from 'swr'
+import { useEffect, useCallback, useMemo } from 'react'
+import useSWR, { SWRConfiguration } from 'swr'
+import type { Fetcher } from 'swr'
 import {
   Thing, SolidDataset,
   getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll, getUrl,
@@ -11,30 +12,37 @@ import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
 import { dequal } from 'dequal'
-import { useAuthentication, fetcherFn, useWebId } from '../contexts/authentication'
+import { useAuthentication, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
-type SwrlitConfigInterface = ConfigInterface & {
+type SwrlitConfigInterface = SWRConfiguration & {
   acl?: boolean,
-  fetch?: fetcherFn<any>,
+  fetch?: Fetcher<any>,
   subscribe?: boolean
 }
 
 type SwrlitKey = string | null | undefined
 
-function useFetch(fetcher?: fetcherFn<any>) {
+// Returns an SWR "fetcher" that uses a Solid-enabled fetch
+// function. If given a fetcher, wrap it in a function that
+// passes the Solid-enabled fetch in its "options" argument,
+// if not, just return the fetch itself.
+function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
   const { fetch } = useAuthentication()
-  return fetcher ? (
-    function thingFetcher(url: string, options: any) {
-      return fetcher(url, { fetch, ...options })
-    }
-  ) : fetch
+  const result = useMemo(() => (
+    fetcher ? (
+      function thingFetcher(url: string, options: any) {
+        return fetcher(url, { fetch, ...options })
+      }
+    ) : fetch
+  ), [fetch, fetcher])
+  return result
 }
 
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const { fetch, acl, subscribe = false } = options
-  const fetcher = useFetch(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
+  const fetcher = useFetcher(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""
@@ -62,7 +70,7 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
   options.fetch = fetch || (acl ? getFileWithAcl : getFile)
 
   const { data: file, mutate, ...rest } = useSwrld(uri, options)
-  const authFetch = useFetch(options && options.fetch)
+  const authFetch = useFetcher(options && options.fetch)
   const save = async (blob: Blob) => {
     if (uri) {
       mutate(blob, false)
@@ -84,8 +92,8 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
 }
 
 type SwrldResult = any
-type ResourceResult = SwrldResult | {save: any}
-type MetaResult = ResourceResult | {meta: any}
+type ResourceResult = SwrldResult | { save: any }
+type MetaResult = ResourceResult | { meta: any }
 
 export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): MetaResult {
   const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
@@ -96,9 +104,9 @@ export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Me
 
 export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
   const { data: resource, mutate, ...rest } = useSwrld(uri, options)
-  const fetch = useFetch(options.fetch)
-  const saveResource = useCallback(async function (newDataset: SolidDataset){
-    if (uri){
+  const fetch = useFetcher(options.fetch)
+  const saveResource = useCallback(async function (newDataset: SolidDataset) {
+    if (uri) {
       mutate(newDataset, false)
       const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch })
       mutate(savedDataset)
@@ -159,8 +167,8 @@ export function useProfile(webId: SwrlitKey, options: SwrlitConfigInterface = {}
 }
 
 export function useStorageContainer(webId: SwrlitKey) {
-    const { profile } = useProfile(webId)
-    return profile && getUrl(profile, WS.storage)
+  const { profile } = useProfile(webId)
+  return profile && getUrl(profile, WS.storage)
 }
 
 export function useMyProfile(options: SwrlitConfigInterface = {}) {
