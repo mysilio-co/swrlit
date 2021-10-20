@@ -1,6 +1,8 @@
-import { fetcherFn } from '../contexts/authentication'
 
-export const resourceExists = async (fetch: fetcherFn<any>, resourcePath: string) => {
+// pulled this type from inrupt's tools: https://github.com/inrupt/solid-client-authn-js/blob/main/packages/browser/src/Session.ts#L265
+type fetchFn = (url: RequestInfo, init?: RequestInit) => Promise<Response>
+
+export const resourceExists = async (fetch: fetchFn, resourcePath: string) => {
   try {
     const result = await fetch(resourcePath, { method: 'HEAD' });
     return result.status === 403 || result.status === 200;
@@ -14,7 +16,7 @@ export const resourceExists = async (fetch: fetcherFn<any>, resourcePath: string
   }
 };
 
-export const createDoc = async (fetch: fetcherFn<any>, documentUri: string, options: any) => {
+export const createDoc = async (fetch: fetchFn, documentUri: string, options: any) => {
     try {
         return await fetch(documentUri, options);
     } catch (e) {
@@ -22,7 +24,7 @@ export const createDoc = async (fetch: fetcherFn<any>, documentUri: string, opti
     }
 };
 
-export const createDocument = async (fetch: fetcherFn<any>, documentUri: string, body = '') => {
+export const createDocument = async (fetch: fetchFn, documentUri: string, body = '') => {
     try {
         const options = {
             method: 'PUT',
@@ -37,7 +39,7 @@ export const createDocument = async (fetch: fetcherFn<any>, documentUri: string,
     }
 };
 
-export const deleteFile = async (fetch: fetcherFn<any>, url: string) => {
+export const deleteFile = async (fetch: fetchFn, url: string) => {
     try {
         return await fetch(url, { method: 'DELETE' });
     } catch (e) {
