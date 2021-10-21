@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import {
   Session, getDefaultSession,
-  login, logout, fetch,
+  login, logout as solidLogout,
+  fetch,
   handleIncomingRedirect,
   //  onSessionRestore,
   ISessionInfo
@@ -18,7 +19,7 @@ const defaultContext = {
   info: getDefaultSession().info,
   login,
   fetch,
-  logout
+  logout: solidLogout
 }
 
 export const AuthenticationContext = createContext<Authentication>(defaultContext);
@@ -34,8 +35,14 @@ export function AuthenticationProvider(props: any) {
         setInfo(newInfo)
       }
     })
-  })
-  const value = useMemo(() => ({info, fetch, login, logout}), [info])
+  }, [])
+
+  const swrlitLogout = useCallback(async function swrlitLogout() {
+    await solidLogout()
+    setInfo(getDefaultSession().info)
+  }, [])
+
+  const value = useMemo(() => ({ info, fetch, login, logout: swrlitLogout }), [info])
   return <AuthenticationContext.Provider value={value} {...props} />
 }
 
