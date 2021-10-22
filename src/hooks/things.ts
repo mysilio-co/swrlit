@@ -24,6 +24,14 @@ type SwrlitConfigInterface = SWRConfiguration & {
 
 type SwrlitKey = string | null | undefined
 
+type SwrldResult = any
+type ResourceResult = SwrldResult | { resource: any, save: any }
+type ThingResult = ResourceResult | { thing: any, saveResource: any }
+type MetaResult = ResourceResult | { meta: any }
+type ContainerResult = SwrldResult | { resources: any }
+type FileResult = SwrldResult | { resource: any, save: any }
+
+
 // Returns an SWR "fetcher" that uses a Solid-enabled fetch
 // function. If given a fetcher, wrap it in a function that
 // passes the Solid-enabled fetch in its "options" argument,
@@ -65,11 +73,12 @@ export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
     options)
 }
 
-export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
+export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): FileResult {
   const { acl, fetch } = options
   options.fetch = fetch || (acl ? getFileWithAcl : getFile)
 
-  const { data: file, mutate, ...rest } = useSwrld(uri, options)
+  const swrldResult: FileResult = useSwrld(uri, options)
+  const mutate = swrldResult.mutate
   const authFetch = useFetcher(options && options.fetch)
   const save = async (blob: Blob) => {
     if (uri) {
@@ -81,19 +90,10 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
       throw Error(`can't overwrite null or undefined uri: ${uri}`)
     }
   }
-  return (
-    {
-      file,
-      mutate,
-      save,
-      ...rest
-    }
-  )
+  swrldResult.file = swrldResult.data
+  swrldResult.save = save
+  return swrldResult
 }
-
-type SwrldResult = any
-type ResourceResult = SwrldResult | { save: any }
-type MetaResult = ResourceResult | { meta: any }
 
 export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): MetaResult {
   const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
@@ -103,7 +103,8 @@ export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Me
 }
 
 export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
-  const { data: resource, mutate, ...rest } = useSwrld(uri, options)
+  const swrldResult: ResourceResult = useSwrld(uri, options)
+  const mutate = swrldResult.mutate
   const fetch = useFetcher(options.fetch)
   const saveResource = useCallback(async function (newDataset: SolidDataset) {
     if (uri) {
@@ -115,14 +116,9 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
       throw new Error(`could not save dataset with uri of ${uri}`)
     }
   }, [uri, fetch])
-  return (
-    {
-      resource,
-      mutate,
-      save: uri && saveResource,
-      ...rest
-    }
-  )
+  swrldResult.save = uri && saveResource
+  swrldResult.resource = swrldResult.data
+  return (swrldResult)
 }
 
 /**
@@ -131,39 +127,42 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
  * @param options - The first input number
  * @returns a useSWR style response map
  */
-export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { resource, mutate, save: saveResource, ...rest } = useResource(uri, options)
+export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ThingResult {
+  const resourceResult = useResource(uri, options)
+  const resource = resourceResult.resource
+  const mutate = resourceResult.mutate
+  const saveResource = resourceResult.save
   const thisThing = resource && uri && getThing(resource, uri)
   const thing = useMemoCompare(thisThing, dequal)
   const saveThing = useCallback(async (newThing: Thing) => {
     const newDataset = setThing(resource || createSolidDataset(), newThing)
     return saveResource(newDataset)
   }, [resource, saveResource])
-  return (
-    {
-      thing,
-      mutate,
-      save: uri && saveThing,
-      resource,
-      saveResource,
-      ...rest
-    }
-  )
+
+  resourceResult.thing = thing
+  resourceResult.mutate = mutate
+  resourceResult.saveResource = saveResource
+  resourceResult.save = uri && saveThing
+
+  return resourceResult
 }
 
-export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { data, ...rest } = useSwrld(uri, options)
+export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ContainerResult {
+  const swrldResult: ContainerResult = useSwrld(uri, options)
+  const data = swrldResult.data
   const container = data && uri && getThing(data, uri)
   const resourceUrls = container && getUrlAll(container, LDP.contains)
   const resources = resourceUrls && resourceUrls.map((url: string) => {
     return getThing(data, url)
   })
-  return { resources, ...rest }
+  swrldResult.resources = resources
+  return swrldResult
 }
 
 export function useProfile(webId: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { thing: profile, ...rest } = useThing(webId, options)
-  return { profile, ...rest }
+  const thingResult = useThing(webId, options)
+  thingResult.profile = thingResult.thing
+  return thingResult
 }
 
 export function useStorageContainer(webId: SwrlitKey) {
