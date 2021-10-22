@@ -82,7 +82,7 @@
     "whatwg-fetch": "^3.5.0"
   },
   "dependencies": {
-    "@inrupt/solid-client": "^1.1.0",
+    "@inrupt/solid-client": "^1.14.0",
     "@inrupt/solid-client-authn-browser": "^1.11.2",
     "@inrupt/vocab-common-rdf": "^1.0.3",
     "@inrupt/vocab-solid-common": "^0.7.5",
