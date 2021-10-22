@@ -1,7 +1,7 @@
 import 'whatwg-fetch'
 //import { act } from '@testing-library/react-hooks'
 import { renderHook } from './utils'
-import { givenMolid } from 'molid/lib/molid-jest';
+//import { givenMolid } from 'molid/lib/molid-jest';
 
 import {
   setStringNoLocale, getStringNoLocale, mockSolidDatasetFrom,
@@ -11,7 +11,7 @@ import { FOAF } from "@inrupt/vocab-common-rdf"
 
 import {
   useThing,
-  useStorageContainer
+//  useStorageContainer
 } from '../src/hooks/things'
 
 const mockProfile = () => setStringNoLocale(createThing({ url: "https://example.com/profile/card#me" }), FOAF.name, "A. N. Other")
