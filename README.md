@@ -13,6 +13,8 @@ out there
 
 see the examples below or [read the docs](https://swrlit.me)
 
+you can get support in our [Discord](https://discord.gg/5uqe7Wk3Sm)
+
 ## install in an existing project
 
 ``` sh
