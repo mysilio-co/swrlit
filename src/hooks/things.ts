@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useMemo } from 'react'
 import useSWR, { SWRConfiguration } from 'swr'
-import type { Fetcher } from 'swr'
+import type { Fetcher, SWRResponse } from 'swr'
 import {
   Thing, SolidDataset,
   getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll, getUrl,
@@ -16,20 +16,22 @@ import { useAuthentication, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
-type SwrlitConfigInterface = SWRConfiguration & {
+export type SwrlitConfigInterface = SWRConfiguration & {
   acl?: boolean,
   fetch?: Fetcher<any>,
   subscribe?: boolean
 }
 
-type SwrlitKey = string | null | undefined
+export type SwrlitKey = string | null | undefined
 
-type SwrldResult = any
-type ResourceResult = SwrldResult | { resource: any, save: any }
-type ThingResult = ResourceResult | { thing: any, saveResource: any }
-type MetaResult = ResourceResult | { meta: any }
-type ContainerResult = SwrldResult | { resources: any }
-type FileResult = SwrldResult | { resource: any, save: any }
+
+export type SwrldResult = SWRResponse<any, any>
+export type ResourceResult = SwrldResult & { resource: SolidDataset, save: any }
+export type ThingResult = ResourceResult & { thing: Thing, saveResource: any }
+export type MetaResult = ResourceResult & { meta: SolidDataset }
+export type ContainerResult = SwrldResult & { resources: any }
+export type FileResult = SwrldResult & { file: any, save: any }
+export type ProfileResult = ThingResult & { profile: Thing }
 
 
 // Returns an SWR "fetcher" that uses a Solid-enabled fetch
@@ -77,7 +79,7 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Fi
   const { acl, fetch } = options
   options.fetch = fetch || (acl ? getFileWithAcl : getFile)
 
-  const swrldResult: FileResult = useSwrld(uri, options)
+  const swrldResult = useSwrld(uri, options) as FileResult
   const mutate = swrldResult.mutate
   const authFetch = useFetcher(options && options.fetch)
   const save = async (blob: Blob) => {
@@ -96,14 +98,13 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Fi
 }
 
 export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): MetaResult {
-  const { resource: meta, ...rest } = useResource(uri && `${uri}.meta`, options)
-  return ({
-    meta, ...rest
-  })
+  const result = useResource(uri && `${uri}.meta`, options) as MetaResult
+  result.meta = result.resource
+  return result
 }
 
 export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
-  const swrldResult: ResourceResult = useSwrld(uri, options)
+  const swrldResult = useSwrld(uri, options) as ResourceResult
   const mutate = swrldResult.mutate
   const fetch = useFetcher(options.fetch)
   const saveResource = useCallback(async function (newDataset: SolidDataset) {
@@ -128,7 +129,7 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
  * @returns a useSWR style response map
  */
 export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ThingResult {
-  const resourceResult = useResource(uri, options)
+  const resourceResult = useResource(uri, options) as ThingResult
   const resource = resourceResult.resource
   const mutate = resourceResult.mutate
   const saveResource = resourceResult.save
@@ -148,7 +149,7 @@ export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}): T
 }
 
 export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ContainerResult {
-  const swrldResult: ContainerResult = useSwrld(uri, options)
+  const swrldResult = useSwrld(uri, options) as ContainerResult
   const data = swrldResult.data
   const container = data && uri && getThing(data, uri)
   const resourceUrls = container && getUrlAll(container, LDP.contains)
@@ -160,7 +161,7 @@ export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}
 }
 
 export function useProfile(webId: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const thingResult = useThing(webId, options)
+  const thingResult = useThing(webId, options) as ProfileResult
   thingResult.profile = thingResult.thing
   return thingResult
 }

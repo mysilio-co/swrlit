@@ -1,6 +1,6 @@
 {
   "name": "swrlit",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "author": "Travis Vachon",
   "description": "swirl the web in your glass",
   "license": "MIT",
@@ -82,7 +82,7 @@
     "whatwg-fetch": "^3.5.0"
   },
   "dependencies": {
-    "@inrupt/solid-client": "^1.14.0",
+    "@inrupt/solid-client": "^1.19.0",
     "@inrupt/solid-client-authn-browser": "^1.11.2",
     "@inrupt/vocab-common-rdf": "^1.0.3",
     "@inrupt/vocab-solid-common": "^0.7.5",
