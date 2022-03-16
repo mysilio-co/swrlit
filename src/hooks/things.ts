@@ -2,12 +2,18 @@ import { useEffect, useCallback, useMemo } from 'react'
 import useSWR, { SWRConfiguration } from 'swr'
 import type { Fetcher, SWRResponse } from 'swr'
 import {
-  Thing, SolidDataset,
-  getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll, getUrl,
-  getSolidDatasetWithAcl,
-  getFile, overwriteFile, getFileWithAcl,
-  createSolidDataset
-} from '@inrupt/solid-client'
+  Thing,
+  SolidDataset,
+  getSolidDataset,
+  getThing,
+  saveSolidDatasetAt,
+  setThing,
+  getUrlAll,
+  getUrl,
+  getFile,
+  overwriteFile,
+  createSolidDataset,
+} from '@inrupt/solid-client';
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
@@ -17,7 +23,6 @@ import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
 export type SwrlitConfigInterface = SWRConfiguration & {
-  acl?: boolean,
   fetch?: Fetcher<any>,
   subscribe?: boolean
 }
@@ -50,9 +55,9 @@ function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
   return result
 }
 
-export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { fetch, acl, subscribe = false } = options
-  const fetcher = useFetcher(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
+export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
+  const { fetch, subscribe = false } = options
+  const fetcher = useFetcher(fetch || getSolidDataset);
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""
@@ -76,8 +81,8 @@ export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
 }
 
 export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): FileResult {
-  const { acl, fetch } = options
-  options.fetch = fetch || (acl ? getFileWithAcl : getFile)
+  const { fetch } = options
+  options.fetch = fetch || getFile;
 
   const swrldResult = useSwrld(uri, options) as FileResult
   const mutate = swrldResult.mutate
