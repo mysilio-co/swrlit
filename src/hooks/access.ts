@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import useSWR from 'swr';
 import { useFetcher, SwrldResult } from './things';
 import { UrlString, WebId, access } from '@inrupt/solid-client';
+import { useAuthentication } from '../contexts/authentication';
 
 export type AccessResult = SwrldResult & { access: access.Access; saveAccess: any };
 export type AllAccessResult = SwrldResult & {
@@ -51,10 +52,10 @@ export function useAccessForAll(
   actorType: Actor,
   actor?: WebId
 ): AllAccessResult {
-  const fetcher = useFetcher(access.getAccessForAll);
+  const { fetch } = useAuthentication();
   const swr = useSWR(
-    [resourceUrl, actorType, actor],
-    fetcher
+    [resourceUrl, actorType, actor, { fetch }],
+    access.getAccessForAll
   ) as AllAccessResult;
   swr.allAccess = swr.data;
   return swr;
@@ -65,8 +66,11 @@ export function useAccessFor(
   actorType: Actor,
   actor?: WebId
 ): AccessResult {
-  const fetcher = useFetcher(access.getAccessFor);
-  const swr = useSWR([resourceUrl, actorType, actor], fetcher) as AccessResult;
+  const { fetch } = useAuthentication();
+  const swr = useSWR(
+    [resourceUrl, actorType, actor, { fetch }],
+    access.getAccessFor
+  ) as AccessResult;
   const mutate = swr.mutate;
   const saveAccess = useCallback(
     async function (newAccess: access.Access) {
@@ -76,7 +80,8 @@ export function useAccessFor(
           resourceUrl,
           actorType,
           newAccess,
-          actor
+          actor,
+          { fetch }
         );
         mutate(savedAccess);
         return savedAccess;
@@ -86,7 +91,7 @@ export function useAccessFor(
         );
       }
     },
-    [resourceUrl]
+    [resourceUrl, fetch]
   );
   swr.saveAccess = resourceUrl && saveAccess;
   swr.access = swr.data;
