@@ -43,18 +43,16 @@ export type ProfileResult = ThingResult & { profile: Thing }
 // function. If given a fetcher, wrap it in a function that
 // passes the Solid-enabled fetch in its "options" argument,
 // if not, just return the fetch itself.
-export function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
-  const { fetch } = useAuthentication();
-  const result = useMemo(
-    () =>
-      fetcher
-        ? function thingFetcher(url: string, options: any) {
-            return fetcher(url, { fetch, ...options });
-          }
-        : fetch,
-    [fetch, fetcher]
-  );
-  return result;
+function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
+  const { fetch } = useAuthentication()
+  const result = useMemo(() => (
+    fetcher ? (
+      function thingFetcher(url: string, options: any) {
+        return fetcher(url, { fetch, ...options })
+      }
+    ) : fetch
+  ), [fetch, fetcher])
+  return result
 }
 
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
