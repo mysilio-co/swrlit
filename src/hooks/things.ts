@@ -2,12 +2,18 @@ import { useEffect, useCallback, useMemo } from 'react'
 import useSWR, { SWRConfiguration } from 'swr'
 import type { Fetcher, SWRResponse } from 'swr'
 import {
-  Thing, SolidDataset,
-  getSolidDataset, getThing, saveSolidDatasetAt, setThing, getUrlAll, getUrl,
-  getSolidDatasetWithAcl,
-  getFile, overwriteFile, getFileWithAcl,
-  createSolidDataset
-} from '@inrupt/solid-client'
+  Thing,
+  SolidDataset,
+  getSolidDataset,
+  getThing,
+  saveSolidDatasetAt,
+  setThing,
+  getUrlAll,
+  getUrl,
+  getFile,
+  overwriteFile,
+  createSolidDataset,
+} from '@inrupt/solid-client';
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
@@ -17,7 +23,6 @@ import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
 export type SwrlitConfigInterface = SWRConfiguration & {
-  acl?: boolean,
   fetch?: Fetcher<any>,
   subscribe?: boolean
 }
@@ -50,9 +55,9 @@ function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
   return result
 }
 
-export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
-  const { fetch, acl, subscribe = false } = options
-  const fetcher = useFetcher(fetch || (acl ? getSolidDatasetWithAcl : getSolidDataset))
+export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
+  const { fetch, subscribe = false } = options
+  const fetcher = useFetcher(fetch || getSolidDataset);
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""
@@ -76,8 +81,8 @@ export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}) {
 }
 
 export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): FileResult {
-  const { acl, fetch } = options
-  options.fetch = fetch || (acl ? getFileWithAcl : getFile)
+  const { fetch } = options
+  options.fetch = fetch || getFile;
 
   const swrldResult = useSwrld(uri, options) as FileResult
   const mutate = swrldResult.mutate
@@ -129,24 +134,41 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
  * @returns a useSWR style response map
  */
 export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ThingResult {
-  const resourceResult = useResource(uri, options) as ThingResult
-  const resource = resourceResult.resource
-  const mutate = resourceResult.mutate
-  const saveResource = resourceResult.save
-  const thisThing = resource && uri && getThing(resource, uri)
-  const thing = useMemoCompare(thisThing, dequal)
-  const saveThing = useCallback(async (newThing: Thing) => {
-    const newDataset = setThing(resource || createSolidDataset(), newThing)
-    return saveResource(newDataset)
-  }, [resource, saveResource])
-
-  resourceResult.thing = thing
-  resourceResult.mutate = mutate
-  resourceResult.saveResource = saveResource
-  resourceResult.save = uri && saveThing
-
-  return resourceResult
+  return useThingInResource(uri, uri, options);
 }
+
+/**
+ * Use the thing identified by `thingUri` stored in resource identified by `resourceUri`
+ *
+ * @param options - The first input number
+ * @returns a useSWR style response map
+ */
+export function useThingInResource(
+  thingUri: SwrlitKey,
+  resourceUri: SwrlitKey,
+  options: SwrlitConfigInterface = {}
+): ThingResult {
+  const resourceResult = useResource(resourceUri, options) as ThingResult;
+  const resource = resourceResult.resource;
+  const mutate = resourceResult.mutate;
+  const saveResource = resourceResult.save;
+  const thisThing = resource && thingUri && getThing(resource, thingUri);
+  const thing = useMemoCompare(thisThing, dequal);
+  const saveThing = useCallback(
+    async (newThing: Thing) => {
+      const newDataset = setThing(resource || createSolidDataset(), newThing);
+      return saveResource(newDataset);
+    },
+    [resource, saveResource]
+  );
+
+  resourceResult.thing = thing;
+  resourceResult.mutate = mutate;
+  resourceResult.saveResource = saveResource;
+  resourceResult.save = thingUri && saveThing;
+
+  return resourceResult;
+};
 
 export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ContainerResult {
   const swrldResult = useSwrld(uri, options) as ContainerResult
