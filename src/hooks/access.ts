@@ -56,7 +56,7 @@ export function useAccessForAll(
   const fetcher = useCallback(
     (resourceUrl, actorType) => {
       if (actorType == PublicActor) {
-        return access.getAccessForAll(resourceUrl, actorType, { fetch });
+        throw new Error("useAccessForAll not supported for 'public' actor. Try useAccessFor instead.")
       } else {
         return access.getAccessForAll(resourceUrl, actorType, { fetch });
       }
