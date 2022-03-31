@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
-    "@size-limit/preset-small-lib": "^4.8.0",
+    "@size-limit/preset-big-lib": "^7.0.8",
     "@storybook/addon-essentials": "^6.0.28",
     "@storybook/addon-info": "^5.3.21",
     "@storybook/addon-links": "^6.0.28",
@@ -73,7 +73,7 @@
     "react-dom": "^17.0.2",
     "react-is": "^17.0.2",
     "react-test-renderer": "^17.0.2",
-    "size-limit": "^4.8.0",
+    "size-limit": "^7.0.8",
     "ts-jest": "^25.5.1",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
