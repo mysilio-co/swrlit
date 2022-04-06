@@ -12,7 +12,6 @@ import {
   getUrl,
   getFile,
   overwriteFile,
-  createSolidDataset,
 } from '@inrupt/solid-client';
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
@@ -113,13 +112,15 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
   const mutate = swrldResult.mutate
   const fetch = useFetcher(options.fetch)
   const saveResource = useCallback(async function (newDataset: SolidDataset) {
-    if (uri) {
-      mutate(newDataset, false)
-      const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch })
-      mutate(savedDataset)
-      return savedDataset
+    if (uri && newDataset) {
+      mutate(newDataset, false);
+      const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch });
+      mutate(savedDataset);
+      return savedDataset;
     } else {
-      throw new Error(`could not save dataset with uri of ${uri}`)
+      throw new Error(
+        `Could not save dataset with uri of ${uri}:\ndataset: ${newDataset}`
+      );
     }
   }, [uri, fetch])
   swrldResult.save = uri && saveResource
@@ -156,7 +157,7 @@ export function useThingInResource(
   const thing = useMemoCompare(thisThing, dequal);
   const saveThing = useCallback(
     async (newThing: Thing) => {
-      const newDataset = setThing(resource || createSolidDataset(), newThing);
+      const newDataset = resource && setThing(resource, newThing);
       return saveResource(newDataset);
     },
     [resource, saveResource]
