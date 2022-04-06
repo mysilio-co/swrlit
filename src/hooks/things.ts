@@ -11,8 +11,7 @@ import {
   getUrlAll,
   getUrl,
   getFile,
-  overwriteFile,
-  createSolidDataset,
+  overwriteFile
 } from '@inrupt/solid-client';
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
@@ -155,9 +154,13 @@ export function useThingInResource(
   const thisThing = resource && thingUri && getThing(resource, thingUri);
   const thing = useMemoCompare(thisThing, dequal);
   const saveThing = useCallback(
-    async (newThing: Thing) => {
-      const newDataset = setThing(resource || createSolidDataset(), newThing);
-      return saveResource(newDataset);
+    async (newThing: Thing, newResource?: SolidDataset) => {
+      if (resource || newResource) {
+        const newDataset = setThing(newResource || resource, newThing);
+        return saveResource(newDataset);
+      } else {
+        throw new Error(`Cannot save thing ${thing}, I don't have an existing resource to save it in. Please pass a resource as the second argument to save if you want to create a new resource.`)
+      }
     },
     [resource, saveResource]
   );
