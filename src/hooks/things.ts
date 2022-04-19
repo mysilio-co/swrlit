@@ -112,16 +112,21 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
   const swrldResult = useSwrld(uri, options) as ResourceResult
   const mutate = swrldResult.mutate
   const fetch = useFetcher(options.fetch)
-  const saveResource = useCallback(async function (newDataset: SolidDataset) {
-    if (uri) {
-      mutate(newDataset, false)
-      const savedDataset = await saveSolidDatasetAt(uri, newDataset, { fetch })
-      mutate(savedDataset)
-      return savedDataset
-    } else {
-      throw new Error(`could not save dataset with uri of ${uri}`)
-    }
-  }, [uri, fetch])
+  const saveResource = useCallback(
+    async function (newDataset: SolidDataset) {
+      if (uri) {
+        mutate(newDataset, false);
+        const savedDataset = await saveSolidDatasetAt(uri, newDataset, {
+          fetch,
+        });
+        mutate(savedDataset);
+        return savedDataset;
+      } else {
+        throw new Error(`could not save dataset with uri of ${uri}`);
+      }
+    },
+    [uri, fetch]
+  );
   swrldResult.save = uri && saveResource
   swrldResult.resource = swrldResult.data
   return (swrldResult)
@@ -156,10 +161,18 @@ export function useThingInResource(
   const thing = useMemoCompare(thisThing, dequal);
   const saveThing = useCallback(
     async (newThing: Thing) => {
-      const newDataset = setThing(resource || createSolidDataset(), newThing);
+      let maybeNewResource = resource;
+      if (
+        resourceResult &&
+        resourceResult.error &&
+        resourceResult.error === 404
+      ) {
+        maybeNewResource = createSolidDataset();
+      }
+      const newDataset = setThing(maybeNewResource, newThing);
       return saveResource(newDataset);
     },
-    [resource, saveResource]
+    [resourceResult, saveResource]
   );
 
   resourceResult.thing = thing;
