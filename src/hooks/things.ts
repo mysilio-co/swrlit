@@ -13,6 +13,7 @@ import {
   getFile,
   overwriteFile,
   createSolidDataset,
+  UrlString,
 } from '@inrupt/solid-client';
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
@@ -27,7 +28,7 @@ export type SwrlitConfigInterface = SWRConfiguration & {
   subscribe?: boolean
 }
 
-export type SwrlitKey = string | null | undefined
+export type SwrlitKey = UrlString| null | undefined
 
 
 export type SwrldResult = SWRResponse<any, any>
