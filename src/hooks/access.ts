@@ -88,25 +88,30 @@ export function useAccessFor(
   const mutate = swr.mutate;
   const saveAccess = useCallback(
     async function (newAccess: access.Access) {
-      if (resourceUrl) {
+      if (resourceUrl && actorType == PublicActor) {
         mutate(newAccess, false);
-        const savedAccess =
-          actorType == PublicActor
-            ? await access.setAccessFor(resourceUrl, actorType, newAccess, {
-                fetch,
-              })
-            : await access.setAccessFor(
-                resourceUrl,
-                actorType,
-                newAccess,
-                actor,
-                { fetch }
-              );
+        const savedAccess = await access.setAccessFor(
+          resourceUrl,
+          actorType,
+          newAccess,
+          { fetch }
+        );
+        mutate(savedAccess);
+        return savedAccess;
+      } else if (resourceUrl && actor) {
+        mutate(newAccess, false);
+        const savedAccess = await access.setAccessFor(
+          resourceUrl,
+          actorType,
+          newAccess,
+          actor,
+          { fetch }
+        );
         mutate(savedAccess);
         return savedAccess;
       } else {
         throw new Error(
-          `Could not update access for resource with url of ${resourceUrl}`
+          `Could not update ${actorType} access for resource with url of ${resourceUrl} for actor ${actor}`
         );
       }
     },
