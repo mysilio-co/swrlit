@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import useSWR from 'swr';
-import { SwrldResult } from './things';
-import { UrlString, WebId, access } from '@inrupt/solid-client';
+import { SwrldResult, SwrlitKey } from './things';
+import { WebId, access } from '@inrupt/solid-client';
 import { useAuthentication } from '../contexts/authentication';
 
 export type AccessResult = SwrldResult & {
@@ -18,38 +18,38 @@ export const GroupActor = 'group';
 export const AgentActor = 'agent';
 export const PublicActor = 'public';
 
-export function usePublicAccess(resourceUrl: UrlString): AccessResult {
+export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
   return useAccessFor(resourceUrl, PublicActor);
 }
 
 export function useAgentAccess(
-  resourceUrl: UrlString,
-  webId: WebId
+  resourceUrl: SwrlitKey,
+  webId: SwrlitKey
 ): AccessResult {
   return useAccessFor(resourceUrl, AgentActor, webId);
 }
 
 export function useAgentAccessAll(
-  resourceUrl: UrlString,
+  resourceUrl: SwrlitKey,
 ): AllAccessResult {
   return useAccessForAll(resourceUrl, AgentActor);
 }
 
 export function useGroupAccess(
-  resourceUrl: UrlString,
-  groupId: WebId
+  resourceUrl: SwrlitKey,
+  groupId: SwrlitKey
 ): AccessResult {
   return useAccessFor(resourceUrl, GroupActor, groupId);
 }
 
 export function useGroupAccessAll(
-  resourceUrl: UrlString,
+  resourceUrl: SwrlitKey,
 ): AllAccessResult {
   return useAccessForAll(resourceUrl, GroupActor);
 }
 
 export function useAccessForAll(
-  resourceUrl: UrlString,
+  resourceUrl: SwrlitKey,
   actorType: Actor,
 ): AllAccessResult {
   const { fetch } = useAuthentication();
@@ -69,9 +69,9 @@ export function useAccessForAll(
 };
 
 export function useAccessFor(
-  resourceUrl: UrlString,
+  resourceUrl: SwrlitKey,
   actorType: Actor,
-  actor?: WebId
+  actor?: SwrlitKey
 ): AccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
@@ -88,25 +88,30 @@ export function useAccessFor(
   const mutate = swr.mutate;
   const saveAccess = useCallback(
     async function (newAccess: access.Access) {
-      if (resourceUrl) {
+      if (resourceUrl && actorType == PublicActor) {
         mutate(newAccess, false);
-        const savedAccess =
-          actorType == PublicActor
-            ? await access.setAccessFor(resourceUrl, actorType, newAccess, {
-                fetch,
-              })
-            : await access.setAccessFor(
-                resourceUrl,
-                actorType,
-                newAccess,
-                actor,
-                { fetch }
-              );
+        const savedAccess = await access.setAccessFor(
+          resourceUrl,
+          actorType,
+          newAccess,
+          { fetch }
+        );
+        mutate(savedAccess);
+        return savedAccess;
+      } else if (resourceUrl && actor) {
+        mutate(newAccess, false);
+        const savedAccess = await access.setAccessFor(
+          resourceUrl,
+          actorType,
+          newAccess,
+          actor,
+          { fetch }
+        );
         mutate(savedAccess);
         return savedAccess;
       } else {
         throw new Error(
-          `Could not update access for resource with url of ${resourceUrl}`
+          `Could not update ${actorType} access for resource with url of ${resourceUrl} for actor ${actor}`
         );
       }
     },
