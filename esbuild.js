@@ -8,8 +8,7 @@ esbuild
     outfile: pkg.main,
     bundle: true,
     sourcemap: true,
-    minify: true,
-    target: ['esnext'],
+    target: ['es2017'],
     plugins: [nodeExternalsPlugin()]
   })
   .catch(() => process.exit(1));
@@ -20,10 +19,8 @@ esbuild
     outdir: 'dist',
     bundle: true,
     sourcemap: true,
-    minify: true,
-    splitting: true,
     format: 'esm',
-    target: ['esnext'],
+    target: ['es2017'],
     plugins: [nodeExternalsPlugin()]
   })
   .catch(() => process.exit(1));
