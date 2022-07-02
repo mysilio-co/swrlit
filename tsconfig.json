@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "esnext",
     "declaration": true,
     "rootDir": "src",
     "lib": [
@@ -14,7 +15,10 @@
     //"noUnusedLocals": true,
     //"noUnusedParameters": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    // must set these two as of 6/22 to support exports in solid-client
+    // see https://github.com/microsoft/TypeScript/issues/33079
+    "module": "node16",
+    "moduleResolution": "node16",
     "outDir": "dist",
     "jsx": "react",
     // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS

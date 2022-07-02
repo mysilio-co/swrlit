@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import useSWR from 'swr';
 import { SwrldResult, SwrlitKey } from './things';
-import { WebId, access } from '@inrupt/solid-client';
+import { WebId } from '@inrupt/solid-client/interfaces';
+import * as access from '@inrupt/solid-client/access/universal';
 import { useAuthentication } from '../contexts/authentication';
 
 export type AccessResult = SwrldResult & {
@@ -54,7 +55,7 @@ export function useAccessForAll(
 ): AllAccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
-    (resourceUrl, actorType) => {
+    (resourceUrl: string, actorType: Actor) => {
       if (actorType == PublicActor) {
         throw new Error("useAccessForAll not supported for 'public' actor. Try useAccessFor instead.")
       } else {
@@ -75,7 +76,7 @@ export function useAccessFor(
 ): AccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
-    (resourceUrl, actorType, actor) => {
+    (resourceUrl: string, actorType: Actor, actor: string) => {
       if (actorType == PublicActor) {
         return access.getAccessFor(resourceUrl, actorType, { fetch });
       } else {

@@ -1,4 +1,3 @@
-
 // pulled this type from inrupt's tools: https://github.com/inrupt/solid-client-authn-js/blob/main/packages/browser/src/Session.ts#L265
 type fetchFn = (url: RequestInfo, init?: RequestInit) => Promise<Response>
 
@@ -7,7 +6,7 @@ export const resourceExists = async (fetch: fetchFn, resourcePath: string) => {
     const result = await fetch(resourcePath, { method: 'HEAD' });
     return result.status === 403 || result.status === 200;
 
-  } catch (e) {
+  } catch (e: any) {
     if (e.status === 404){
       return false
     } else {

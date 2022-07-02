@@ -27,9 +27,9 @@ export function useEnsured(url: string | undefined | null, { useCached = true }:
         }
       }
     }
-    if (url && fetch) {
+    if (url) {
       ensureUrl(url)
     }
-  }, [url, fetch])
+  }, [url])
   return ensuredUrl
 }
