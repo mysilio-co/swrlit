@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2017",
     "declaration": true,
     "rootDir": "src",
+    "outDir": "dist",
     "lib": [
-      "esnext",
+      "es2017",
       "dom"
     ],
+    "sourceMap": true,
     "strict": true,
     // linter checks for common issues
     //"noImplicitReturns": true,
@@ -19,7 +21,6 @@
     // see https://github.com/microsoft/TypeScript/issues/33079
     "module": "node16",
     "moduleResolution": "node16",
-    "outDir": "dist",
     "jsx": "react",
     // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
     "skipLibCheck": true,
@@ -28,5 +29,4 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
 }

@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useMemo } from 'react'
-import useSWR, { SWRConfiguration } from 'swr'
+import useSWRHook, { SWRConfiguration, SWRHook } from 'swr'
 import type { Fetcher, SWRResponse } from 'swr'
 import {
   Thing,
@@ -28,9 +28,11 @@ import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
 import { dequal } from 'dequal'
-import { useAuthentication, useWebId } from '../contexts/authentication'
-import { usePubSub } from '../contexts/pubsub'
-import { useMemoCompare } from './react'
+import { useAuthentication, useWebId } from '../contexts/authentication.js'
+import { usePubSub } from '../contexts/pubsub.js'
+import { useMemoCompare } from './react.js'
+
+const useSWR: SWRHook = (useSWRHook as any) as SWRHook
 
 export type SwrlitConfigInterface = SWRConfiguration & {
   fetch?: Fetcher<any>,
