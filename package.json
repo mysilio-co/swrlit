@@ -8,36 +8,36 @@
     "url": "https://github.com/itme/swrlit/issues"
   },
   "homepage": "https://swrlit.me/",
-  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.es.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
     "./hooks/things": {
-      "import": "./dist/hooks/things.js",
+      "import": "./dist/hooks/things.mjs",
       "types": "./dist/hooks/things.d.ts"
     },
     "./hooks/access": {
-      "import": "./dist/hooks/access.js",
+      "import": "./dist/hooks/access.mjs",
       "types": "./dist/hooks/access.d.ts"
     },
     "./hooks/react": {
-      "import": "./dist/hooks/react.js",
+      "import": "./dist/hooks/react.mjs",
       "types": "./dist/hooks/react.d.ts"
     },
     "./hooks/useEnsured": {
-      "import": "./dist/hooks/useEnsured.js",
+      "import": "./dist/hooks/useEnsured.mjs",
       "types": "./dist/hooks/useEnsured.d.ts"
     },
     "./contexts/authentication": {
-      "import": "./dist/contexts/authentication.js",
+      "import": "./dist/contexts/authentication.mjs",
       "types": "./dist/contexts/authentication.d.ts"
     },
     "./contexts/pubsub": {
-      "import": "./dist/contexts/pubsub.js",
+      "import": "./dist/contexts/pubsub.mjs",
       "types": "./dist/contexts/pubsub.d.ts"
     }
   },
@@ -83,8 +83,12 @@
     "@size-limit/preset-big-lib": "^7.0.8",
     "@types/jest": "^28.1.4",
     "@types/react": "^18.0.14",
+    "esbuild": "^0.14.48",
     "jest": "^28.1.2",
     "rimraf": "^3.0.2",
+    "rollup": "^2.75.7",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-esbuild": "^4.9.1",
     "size-limit": "^7.0.8",
     "ts-jest": "^28.0.5",
     "tslib": "^2.4.0",

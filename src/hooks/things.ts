@@ -28,9 +28,9 @@ import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
 import { dequal } from 'dequal'
-import { useAuthentication, useWebId } from '../contexts/authentication.js'
-import { usePubSub } from '../contexts/pubsub.js'
-import { useMemoCompare } from './react.js'
+import { useAuthentication, useWebId } from '../contexts/authentication'
+import { usePubSub } from '../contexts/pubsub'
+import { useMemoCompare } from './react'
 
 const useSWR: SWRHook = (useSWRHook as any) as SWRHook
 

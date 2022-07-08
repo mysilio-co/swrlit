@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import useSWRHook, { SWRHook } from 'swr';
 import { WebId } from '@inrupt/solid-client/interfaces';
 import * as access from '@inrupt/solid-client/access/universal';
-import { SwrldResult, SwrlitKey } from './things.js';
-import { useAuthentication } from '../contexts/authentication.js';
+import { SwrldResult, SwrlitKey } from './things';
+import { useAuthentication } from '../contexts/authentication';
 
 export type AccessResult = SwrldResult & {
   access: access.Access;

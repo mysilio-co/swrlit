@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 
-import { resourceExists, createDocument, deleteFile } from '../lib/http.js'
-import { useAuthentication } from '../contexts/authentication.js'
+import { resourceExists, createDocument, deleteFile } from '../lib/http'
+import { useAuthentication } from '../contexts/authentication'
 
 type UseEnsuredOptions = {
   useCached: boolean
