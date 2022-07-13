@@ -1,6 +1,6 @@
 {
   "name": "swrlit",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0-beta.10",
   "author": "Travis Vachon",
   "description": "swirl the web in your glass",
   "license": "MIT",
@@ -57,7 +57,7 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "rimraf dist && tsc ",
+    "build": "rimraf dist && rollup -c",
     "size": "npm run build && size-limit"
   },
   "repository": {
