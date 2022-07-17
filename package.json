@@ -1,6 +1,6 @@
 {
   "name": "swrlit",
-  "version": "1.0.0-beta.10",
+  "version": "1.0.0-beta.11",
   "author": "Travis Vachon",
   "description": "swirl the web in your glass",
   "license": "MIT",
@@ -82,7 +82,7 @@
   "devDependencies": {
     "@size-limit/preset-big-lib": "^7.0.8",
     "@types/jest": "^28.1.4",
-    "@types/react": "^18.0.14",
+    "@types/react": "^17.0.0",
     "esbuild": "^0.14.48",
     "jest": "^28.1.2",
     "rimraf": "^3.0.2",
