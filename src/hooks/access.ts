@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
-import useSWR from 'swr';
+import useSWRHook, { SWRHook } from 'swr';
+import { WebId } from '@inrupt/solid-client/interfaces';
+import * as access from '@inrupt/solid-client/access/universal';
 import { SwrldResult, SwrlitKey } from './things';
-import { WebId, access } from '@inrupt/solid-client';
 import { useAuthentication } from '../contexts/authentication';
 
 export type AccessResult = SwrldResult & {
@@ -11,6 +12,8 @@ export type AccessResult = SwrldResult & {
 export type AllAccessResult = SwrldResult & {
   allAccess: Record<WebId, access.Access>;
 };
+
+const useSWR: SWRHook = (useSWRHook as any) as SWRHook
 
 // TODO use access.Actor once https://github.com/inrupt/solid-client-js/pull/1519 is released
 export type Actor = 'agent' | 'group' | 'public';
@@ -54,7 +57,7 @@ export function useAccessForAll(
 ): AllAccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
-    (resourceUrl, actorType) => {
+    (resourceUrl: string, actorType: Actor) => {
       if (actorType == PublicActor) {
         throw new Error("useAccessForAll not supported for 'public' actor. Try useAccessFor instead.")
       } else {
@@ -75,7 +78,7 @@ export function useAccessFor(
 ): AccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
-    (resourceUrl, actorType, actor) => {
+    (resourceUrl: string, actorType: Actor, actor: string) => {
       if (actorType == PublicActor) {
         return access.getAccessFor(resourceUrl, actorType, { fetch });
       } else {

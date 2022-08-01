@@ -1,20 +1,29 @@
 import { useEffect, useCallback, useMemo } from 'react'
-import useSWR, { SWRConfiguration } from 'swr'
+import useSWRHook, { SWRConfiguration, SWRHook } from 'swr'
 import type { Fetcher, SWRResponse } from 'swr'
 import {
   Thing,
   SolidDataset,
+  UrlString
+} from '@inrupt/solid-client/interfaces'
+import {
   getSolidDataset,
-  getThing,
   saveSolidDatasetAt,
-  setThing,
-  getUrlAll,
+  createSolidDataset,
+} from '@inrupt/solid-client/resource/solidDataset'
+import {
+  getThing,
+  setThing
+} from '@inrupt/solid-client/thing/thing'
+import {
   getUrl,
+  getUrlAll,
+} from '@inrupt/solid-client/thing/get'
+import {
   getFile,
   overwriteFile,
-  createSolidDataset,
-  UrlString,
-} from '@inrupt/solid-client';
+} from '@inrupt/solid-client/resource/file'
+
 import { LDP } from "@inrupt/vocab-common-rdf"
 import { WS } from '@inrupt/vocab-solid-common'
 
@@ -23,12 +32,14 @@ import { useAuthentication, useWebId } from '../contexts/authentication'
 import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
+const useSWR: SWRHook = (useSWRHook as any) as SWRHook
+
 export type SwrlitConfigInterface = SWRConfiguration & {
   fetch?: Fetcher<any>,
   subscribe?: boolean
 }
 
-export type SwrlitKey = UrlString| null | undefined
+export type SwrlitKey = UrlString | null | undefined
 
 
 export type SwrldResult = SWRResponse<any, any>
@@ -91,7 +102,7 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Fi
   const save = async (blob: Blob) => {
     if (uri) {
       mutate(blob, false)
-      const savedDataset = await overwriteFile(uri, blob, { fetch: authFetch })
+      const savedDataset = await overwriteFile(uri, blob, { fetch: authFetch as typeof window.fetch })
       mutate(blob)
       return savedDataset
     } else {
@@ -118,7 +129,7 @@ export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {})
       if (uri) {
         mutate(newDataset, false);
         const savedDataset = await saveSolidDatasetAt(uri, newDataset, {
-          fetch,
+          fetch: fetch as typeof window.fetch,
         });
         mutate(savedDataset);
         return savedDataset;
