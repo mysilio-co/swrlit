@@ -167,13 +167,12 @@ export function useThingInResource(
 ): ThingResult {
   const resourceResult = useResource(resourceUri, options) as ThingResult;
   const resource = resourceResult.resource;
-  const mutate = resourceResult.mutate;
   const saveResource = resourceResult.save;
   const thisThing = resource && thingUri && getThing(resource, thingUri);
   const thing = useMemoCompare(thisThing, dequal);
   const saveThing = useCallback(
     async (newThing: Thing) => {
-      let maybeNewResource = resource;
+      let maybeNewResource = resourceResult.resource;
       if (
         resourceResult &&
         resourceResult.error &&
@@ -182,13 +181,12 @@ export function useThingInResource(
         maybeNewResource = createSolidDataset();
       }
       const newDataset = setThing(maybeNewResource, newThing);
-      return saveResource(newDataset);
+      return resourceResult.save(newDataset);
     },
-    [resourceResult, saveResource]
+    [resourceResult]
   );
 
   resourceResult.thing = thing;
-  resourceResult.mutate = mutate;
   resourceResult.saveResource = saveResource;
   resourceResult.save = thingUri && saveThing;
 
