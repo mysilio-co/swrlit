@@ -166,11 +166,11 @@ export function useThingInResource(
   options: SwrlitConfigInterface = {}
 ): ThingResult {
   const resourceResult = useResource(resourceUri, options) as ThingResult;
+  resourceResult.saveResource = resourceResult.save;
   const resource = resourceResult.resource;
-  const saveResource = resourceResult.save;
   const thisThing = resource && thingUri && getThing(resource, thingUri);
-  const thing = useMemoCompare(thisThing, dequal);
-  const saveThing = useCallback(
+  resourceResult.thing = useMemoCompare(thisThing, dequal);
+  resourceResult.save = useCallback(
     async (newThing: Thing) => {
       let maybeNewResource = resourceResult.resource;
       if (
@@ -181,14 +181,10 @@ export function useThingInResource(
         maybeNewResource = createSolidDataset();
       }
       const newDataset = setThing(maybeNewResource, newThing);
-      return resourceResult.save(newDataset);
+      return resourceResult.saveResource(newDataset);
     },
     [resourceResult]
   );
-
-  resourceResult.thing = thing;
-  resourceResult.saveResource = saveResource;
-  resourceResult.save = thingUri && saveThing;
 
   return resourceResult;
 };
