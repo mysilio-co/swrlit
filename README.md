@@ -21,17 +21,6 @@ you can get support in our [Discord](https://discord.gg/5uqe7Wk3Sm)
 npm install swrlit
 ```
 
-## create a new swrlit app with Next.js and Tailwind CSS
-
-``` sh
-npx create-next-app --use-npm --example https://github.com/itme/nextjs-swrlit-tailwindcss nextjs-swrlit-tailwindcss-app
-# or
-yarn create next-app --example https://github.com/itme/nextjs-swrlit-tailwindcss nextjs-swrlit-tailwindcss-app
-```
-
-
-## examples
-
 ### get data from a pod
 
 ``` typescript
