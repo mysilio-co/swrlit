@@ -24,11 +24,23 @@ const defaultContext = {
   fetch,
   logout: solidLogout
 }
-
+/**
+ * A React context for authentication state.
+ */
 export const AuthenticationContext = createContext<Authentication>(defaultContext);
 interface AuthenticationContextProps {
   onSessionRestore: (url: string) => any
 }
+
+/**
+ * A React component that makes the authentication context available
+ * to downstream components.
+ *
+ * You should wrap any parts of your React app that need to use
+ * authentication state in this provider.
+ *
+ * @returns a React Context provider
+ */
 export const AuthenticationProvider: React.FC<AuthenticationContextProps> =
   ({ onSessionRestore: sessionRestoreCallback, ...props }) => {
     const [info, setInfo] = useState<ISessionInfo>()
@@ -55,14 +67,29 @@ export const AuthenticationProvider: React.FC<AuthenticationContextProps> =
     return <AuthenticationContext.Provider value={value} {...props} />
   }
 
+/**
+ * A React hook that returns the current authentication context.
+ *
+ * @returns a React Context containing authentication information
+ */
 export const useAuthentication = () => useContext(AuthenticationContext)
 
-export const useLoggedIn = () => {
+/**
+ * A React hook for login state
+ *
+ * @returns true if the user is logged in, false otherwise
+ */
+export function useLoggedIn(): boolean {
   const { info } = useAuthentication()
-  return info && info.isLoggedIn
+  return !!info && info.isLoggedIn
 }
 
-export function useWebId() {
+/**
+ * A React hook for the current user's webId
+ *
+ * @returns the user's webId if known, undefined otherwise
+ */
+export function useWebId(): string | undefined {
   const { info } = useAuthentication()
   return info && info.webId
 }
