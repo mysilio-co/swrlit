@@ -21,10 +21,16 @@ export const GroupActor = 'group';
 export const AgentActor = 'agent';
 export const PublicActor = 'public';
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
   return useAccessFor(resourceUrl, PublicActor);
 }
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useAgentAccess(
   resourceUrl: SwrlitKey,
   webId: SwrlitKey
@@ -32,12 +38,18 @@ export function useAgentAccess(
   return useAccessFor(resourceUrl, AgentActor, webId);
 }
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useAgentAccessAll(
   resourceUrl: SwrlitKey,
 ): AllAccessResult {
   return useAccessForAll(resourceUrl, AgentActor);
 }
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useGroupAccess(
   resourceUrl: SwrlitKey,
   groupId: SwrlitKey
@@ -45,12 +57,18 @@ export function useGroupAccess(
   return useAccessFor(resourceUrl, GroupActor, groupId);
 }
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useGroupAccessAll(
   resourceUrl: SwrlitKey,
 ): AllAccessResult {
   return useAccessForAll(resourceUrl, GroupActor);
 }
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useAccessForAll(
   resourceUrl: SwrlitKey,
   actorType: Actor,
@@ -71,6 +89,9 @@ export function useAccessForAll(
   return swr;
 };
 
+/*
+* EXPERIMENTAL - API may change even in minor releases
+*/
 export function useAccessFor(
   resourceUrl: SwrlitKey,
   actorType: Actor,
