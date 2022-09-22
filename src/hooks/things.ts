@@ -29,14 +29,12 @@ import { WS } from '@inrupt/vocab-solid-common'
 
 import { dequal } from 'dequal'
 import { useAuthentication, useWebId } from '../contexts/authentication'
-import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
 const useSWR: SWRHook = (useSWRHook as any) as SWRHook
 
 export type SwrlitConfigInterface = SWRConfiguration & {
-  fetch?: Fetcher<any>,
-  subscribe?: boolean
+  fetch?: Fetcher<any>
 }
 
 export type SwrlitKey = UrlString | null | undefined
@@ -68,24 +66,13 @@ function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
 }
 
 export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
-  const { fetch, subscribe = false } = options
+  const { fetch } = options
   const fetcher = useFetcher(fetch || getSolidDataset);
   const documentURL = uri && new URL(uri)
   if (documentURL) {
     documentURL.hash = ""
   }
   const documentUri = documentURL && documentURL.toString()
-  const { sub } = usePubSub()
-  useEffect(function maybeSubscribe() {
-    async function subscribeToUri() {
-      if (documentUri) {
-        sub(documentUri)
-      }
-    }
-    if (subscribe) {
-      subscribeToUri()
-    }
-  }, [documentUri, subscribe])
   return useSWR(
     documentUri || null,
     fetcher,
