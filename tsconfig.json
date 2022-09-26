@@ -29,5 +29,30 @@
   },
   "include": [
     "src/**/*.ts"
-  ]
+  ],
+  "exclude": [
+    "**/node_modules"
+  ],
+  "typedocOptions": {
+    "out": "docs/api",
+    "entryPoints": [
+      // The source files of everything listed under `exports` in our package.json
+      // (i.e. public API's that should be documented) should be listed here:
+      "src/hooks/things.ts",
+    ],
+    "exclude": [
+      "node_modules/**",
+      "**/*.test.ts",
+      // Internal helpers:
+      "**/*.internal.ts",
+      // End-to-end tests:
+      "e2e/**",
+      // Re-exported functions are already documented in their own modules:
+      "src/index.ts",
+
+    ],
+    "theme": "default",
+    "readme": "none",
+    "entryDocument": "index.html"
+  }
 }
