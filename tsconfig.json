@@ -51,7 +51,7 @@
       "src/index.ts",
 
     ],
-    "theme": "default",
+    "theme": "category",
     "readme": "none",
     "entryDocument": "index.html"
   }
