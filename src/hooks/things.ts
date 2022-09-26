@@ -29,14 +29,12 @@ import { WS } from '@inrupt/vocab-solid-common'
 
 import { dequal } from 'dequal'
 import { useAuthentication, useWebId } from '../contexts/authentication'
-import { usePubSub } from '../contexts/pubsub'
 import { useMemoCompare } from './react'
 
 const useSWR: SWRHook = (useSWRHook as any) as SWRHook
 
 export type SwrlitConfigInterface = SWRConfiguration & {
-  fetch?: Fetcher<any>,
-  subscribe?: boolean
+  fetch?: Fetcher<any>
 }
 
 export type SwrlitKey = UrlString | null | undefined
@@ -67,31 +65,38 @@ function useFetcher(fetcher?: Fetcher<any>): Fetcher<any> {
   return result
 }
 
-export function useSwrld(uri: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
-  const { fetch, subscribe = false } = options
+/**
+ * Retrieve and manage the entity identified by `url`
+ *
+ * This function wraps `useSWR` and return its result. It will automatically
+ * use authentication from a swrlit AuthenticationContext and strips
+ * hash fragments from the URL to avoid duplicative caching of Resources.
+ *
+ * @param url the URL of a file
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
+export function useSwrld(url: SwrlitKey, options: SwrlitConfigInterface = {}): SwrldResult {
+  const { fetch } = options
   const fetcher = useFetcher(fetch || getSolidDataset);
-  const documentURL = uri && new URL(uri)
+  const documentURL = url && new URL(url)
   if (documentURL) {
     documentURL.hash = ""
   }
-  const documentUri = documentURL && documentURL.toString()
-  const { sub } = usePubSub()
-  useEffect(function maybeSubscribe() {
-    async function subscribeToUri() {
-      if (documentUri) {
-        sub(documentUri)
-      }
-    }
-    if (subscribe) {
-      subscribeToUri()
-    }
-  }, [documentUri, subscribe])
+  const documentUrl = documentURL && documentURL.toString()
   return useSWR(
-    documentUri || null,
+    documentUrl || null,
     fetcher,
     options)
 }
 
+/**
+ * Retrieve and manage the file identified by `url`
+ *
+ * @param uri the URL of a file
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
 export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): FileResult {
   const { fetch } = options
   options.fetch = fetch || getFile;
@@ -114,50 +119,67 @@ export function useFile(uri: SwrlitKey, options: SwrlitConfigInterface = {}): Fi
   return swrldResult
 }
 
+/**
+ * Retrieve and manage the metadata SolidDataset of the Resource identified by `url`
+ *
+ * @param uri the URL of a Solid Resource
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
 export function useMeta(uri: SwrlitKey, options: SwrlitConfigInterface = {}): MetaResult {
   const result = useResource(uri && `${uri}.meta`, options) as MetaResult
   result.meta = result.resource
   return result
 }
 
-export function useResource(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
-  const swrldResult = useSwrld(uri, options) as ResourceResult
+/**
+ * Retrieve and manage the SolidDataset identified by `url`
+ *
+ * @param uri the URL of a Solid Resource
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
+export function useResource(url: SwrlitKey, options: SwrlitConfigInterface = {}): ResourceResult {
+  const swrldResult = useSwrld(url, options) as ResourceResult
   const mutate = swrldResult.mutate
   const fetch = useFetcher(options.fetch)
   const saveResource = useCallback(
     async function (newDataset: SolidDataset) {
-      if (uri) {
+      if (url) {
         mutate(newDataset, false);
-        const savedDataset = await saveSolidDatasetAt(uri, newDataset, {
+        const savedDataset = await saveSolidDatasetAt(url, newDataset, {
           fetch: fetch as typeof window.fetch,
         });
         mutate(savedDataset);
         return savedDataset;
       } else {
-        throw new Error(`could not save dataset with uri of ${uri}`);
+        throw new Error(`could not save dataset with uri of ${url}`);
       }
     },
-    [uri, fetch]
+    [url, fetch]
   );
-  swrldResult.save = uri && saveResource
+  swrldResult.save = url && saveResource
   swrldResult.resource = swrldResult.data
   return (swrldResult)
 }
 
 /**
- * Use the thing identified by `uri`
+ * Retrieve and manage the Thing identified by `url`
  *
- * @param options - The first input number
+ * @param uri the URL of a Thing in a Solid Resource
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
  * @returns a useSWR style response map
  */
-export function useThing(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ThingResult {
-  return useThingInResource(uri, uri, options);
+export function useThing(url: SwrlitKey, options: SwrlitConfigInterface = {}): ThingResult {
+  return useThingInResource(url, url, options);
 }
 
 /**
- * Use the thing identified by `thingUri` stored in resource identified by `resourceUri`
+ * Retrieve the and manage the Thing identified by `thingUri` stored in resource identified by `resourceUri`
  *
- * @param options - The first input number
+ * @param thingUri the URL of a Thing in a Solid Resource
+ * @param resourceUri the URL of a Solid Resource
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
  * @returns a useSWR style response map
  */
 export function useThingInResource(
@@ -189,6 +211,13 @@ export function useThingInResource(
   return resourceResult;
 };
 
+/**
+ * Retrieve and manage the Container identified by `url`
+ *
+ * @param uri the URL of a Solid Container
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
 export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}): ContainerResult {
   const swrldResult = useSwrld(uri, options) as ContainerResult
   const data = swrldResult.data
@@ -201,17 +230,37 @@ export function useContainer(uri: SwrlitKey, options: SwrlitConfigInterface = {}
   return swrldResult
 }
 
+/**
+ * Retrieve and manage the profile document identified by `webId`
+ *
+ * @param webId the URL of a Solid profile document
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
 export function useProfile(webId: SwrlitKey, options: SwrlitConfigInterface = {}) {
   const thingResult = useThing(webId, options) as ProfileResult
   thingResult.profile = thingResult.thing
   return thingResult
 }
 
-export function useStorageContainer(webId: SwrlitKey) {
-  const { profile } = useProfile(webId)
+/**
+ * Retrieve and manage the storage container from the profile document identified by `webId`
+ *
+ * @param webId the URL of a Solid profile document
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
+export function useStorageContainer(webId: SwrlitKey, options: SwrlitConfigInterface = {}) {
+  const { profile } = useProfile(webId, options)
   return profile && getUrl(profile, WS.storage)
 }
 
+/**
+ * Retrieve and manage the profile document of the currently authenticated user.
+ *
+ * @param options Optional parameter `options.fetch`: An alternative `fetch` function to make the HTTP request, compatible with the browser-native [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+ * @returns a useSWR style response map
+ */
 export function useMyProfile(options: SwrlitConfigInterface = {}) {
   const webId = useWebId()
   return useProfile(webId, options)

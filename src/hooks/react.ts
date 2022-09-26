@@ -1,6 +1,15 @@
 import { useEffect, useRef } from "react"
 
-// thanks, https://usehooks.com/useMemoCompare/
+/* adapted from the example at https://usehooks.com/useMemoCompare/
+*
+* from the original example:
+* 
+* This hook is similar to useMemo, but instead of passing an array of dependencies
+* we pass a custom compare function that receives the previous and new value. The
+* compare function can then compare nested properties, call object methods, or
+* anything else to determine equality. If the compare function returns true
+* then the hook returns the old object reference.
+*/
 export function useMemoCompare(next: any, compare: any): any {
   // Ref for storing previous value
   const previousRef = useRef();
