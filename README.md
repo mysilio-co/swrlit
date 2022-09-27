@@ -11,9 +11,9 @@ out there
 
 ## how do I use it?
 
-see the examples below or [read the docs](https://swrlit.me)
+see the examples below or [read the docs](https://swrlit.mysilio.page/)
 
-you can get support in our [Discord](https://discord.gg/5uqe7Wk3Sm)
+you can get support by filing an issue
 
 ## install in an existing project
 
