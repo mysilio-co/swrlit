@@ -9,6 +9,15 @@ import {
 } from '@inrupt/solid-client/universal';
 import { SwrldResult, SwrlitKey } from './things';
 import { useAuthentication } from '../contexts/authentication';
+import {
+  createAcl,
+  createAclFromFallbackAcl,
+  getFileWithAcl,
+  hasResourceAcl,
+  hasFallbackAcl,
+  hasAccessibleAcl,
+  saveAclFor,
+} from '@inrupt/solid-client';
 
 // redefined from solid-client because it is not exported
 // https://github.com/inrupt/solid-client-js/blob/main/src/acp/type/AccessModes.ts
@@ -40,6 +49,28 @@ export const RevokedAccess = {
   controlWrite: false,
 };
 
+export async function ensureAcl(resourceUrl: SwrlitKey, options: any) {
+  if (resourceUrl) {
+    const resourceWithAcl = await getFileWithAcl(resourceUrl, options);
+    if (!hasAccessibleAcl(resourceWithAcl)) {
+      throw new Error(
+        'The current user does not have permission to change access rights to this Resource.'
+      );
+    }
+    if (!hasResourceAcl(resourceWithAcl)) {
+      let acl;
+      if (hasFallbackAcl(resourceWithAcl)) {
+        acl = createAclFromFallbackAcl(resourceWithAcl);
+      } else {
+        acl = createAcl(resourceWithAcl);
+      }
+      await saveAclFor(resourceWithAcl, acl, options);
+    }
+  } else {
+    throw new Error('Cannot ensureAcl for undefined resource');
+  }
+}
+
 export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
   const { fetch } = useAuthentication();
   const fetcher = useCallback(
@@ -54,6 +85,7 @@ export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
     async function (newAccess: AccessModes) {
       if (resourceUrl) {
         mutate(newAccess, false);
+        await ensureAcl(resourceUrl, { fetch });
         const savedAccess = await setPublicAccess(resourceUrl, newAccess, {
           fetch,
         });
@@ -106,6 +138,7 @@ export function useAgentAccess(
     async function (newAccess: AccessModes) {
       if (resourceUrl) {
         mutate(newAccess, false);
+        await ensureAcl(resourceUrl, { fetch });
         const savedAccess = await setAgentAccess(
           resourceUrl,
           webId,
