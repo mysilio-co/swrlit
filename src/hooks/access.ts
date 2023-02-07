@@ -97,7 +97,7 @@ export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
         );
       }
     },
-    [resourceUrl, fetch]
+    [swr, resourceUrl, fetch]
   );
   swr.saveAccess = resourceUrl && saveAccess;
   swr.access = swr.data;
@@ -153,13 +153,13 @@ export function useAgentAccess(
         );
       }
     },
-    [resourceUrl, webId, fetch]
+    [swr, resourceUrl, webId, fetch]
   );
   swr.saveAccess = resourceUrl && saveAccess;
   swr.access = swr.data;
   const ensureAccess = useCallback(
     async function (toEnsure: AccessModes) {
-      if (swr.access && swr.access !== toEnsure) {
+      if (swr.access !== toEnsure) {
         await swr.saveAccess(toEnsure);
       }
       return toEnsure;
