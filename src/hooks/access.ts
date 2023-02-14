@@ -104,9 +104,12 @@ export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
   swr.access = swr.data;
   const ensureAccess = useCallback(
     async function (toEnsure: AccessModes) {
-      if (swr.access && dequal(swr.access, toEnsure)) {
-        console.log(swr.access, toEnsure);
+      console.log(`Ensuring ${swr.access} is ${toEnsure}`);
+      if (swr.access && !dequal(swr.access, toEnsure)) {
+        console.log(`Updating access to ${toEnsure}`);
         await swr.saveAccess(toEnsure);
+      } else {
+        console.log(`Access already matches ${toEnsure}`);
       }
       return toEnsure;
     },
