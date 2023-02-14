@@ -18,6 +18,7 @@ import {
   hasAccessibleAcl,
   saveAclFor,
 } from '@inrupt/solid-client';
+import { dequal } from 'dequal/lite';
 
 // redefined from solid-client because it is not exported
 // https://github.com/inrupt/solid-client-js/blob/main/src/acp/type/AccessModes.ts
@@ -39,7 +40,7 @@ export type AllAccessResult = SwrldResult & {
   allAccess: Record<WebId, AccessModes>;
 };
 
-const useSWR: SWRHook = (useSWRHook as any) as SWRHook;
+const useSWR: SWRHook = useSWRHook as any as SWRHook;
 
 export const RevokedAccess = {
   read: false,
@@ -103,18 +104,19 @@ export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
   swr.access = swr.data;
   const ensureAccess = useCallback(
     async function (toEnsure: AccessModes) {
-      if (swr.access && swr.access !== toEnsure) {
+      if (swr.access && dequal(swr.access, toEnsure)) {
+        console.log(swr.access, toEnsure);
         await swr.saveAccess(toEnsure);
       }
       return toEnsure;
     },
-    [swr]
+    [swr.access]
   );
   const revokeAccess = useCallback(
     async function () {
       return await ensureAccess(RevokedAccess);
     },
-    [swr]
+    [swr.access]
   );
   swr.ensureAccess = ensureAccess;
   swr.revokeAccess = revokeAccess;
