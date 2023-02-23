@@ -1,1 +1,1 @@
-declare module 'dequal';
+declare module 'dequal'

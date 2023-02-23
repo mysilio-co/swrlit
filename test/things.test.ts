@@ -4,18 +4,30 @@ import { renderHook } from './utils'
 //import { givenMolid } from 'molid/lib/molid-jest';
 
 import {
-  setStringNoLocale, getStringNoLocale, mockSolidDatasetFrom,
-  setThing, createThing
+  setStringNoLocale,
+  getStringNoLocale,
+  mockSolidDatasetFrom,
+  setThing,
+  createThing,
 } from '@inrupt/solid-client'
-import { FOAF } from "@inrupt/vocab-common-rdf"
+import { FOAF } from '@inrupt/vocab-common-rdf'
 
 import {
   useThing,
-//  useStorageContainer
+  //  useStorageContainer
 } from '../src/hooks/things'
 
-const mockProfile = () => setStringNoLocale(createThing({ url: "https://example.com/profile/card#me" }), FOAF.name, "A. N. Other")
-const mockProfileResource = () => setThing(mockSolidDatasetFrom("https://example.com/profile/card"), mockProfile())
+const mockProfile = () =>
+  setStringNoLocale(
+    createThing({ url: 'https://example.com/profile/card#me' }),
+    FOAF.name,
+    'A. N. Other'
+  )
+const mockProfileResource = () =>
+  setThing(
+    mockSolidDatasetFrom('https://example.com/profile/card'),
+    mockProfile()
+  )
 
 const newMockFetch = () => {
   const fetcher = jest.fn()
@@ -29,47 +41,50 @@ const newMockFetch = () => {
   return { resolve, reject, fetch: fetcher }
 }
 
-describe("useThing() unit tests", () => {
-  test("fetches and returns a thing that exists", async () => {
+describe('useThing() unit tests', () => {
+  test('fetches and returns a thing that exists', async () => {
     const { fetch, resolve } = newMockFetch()
-    const { result, waitForValueToChange } = renderHook(
-      () => useThing("https://example.com/profile/card#me", { fetch })
+    const { result, waitForValueToChange } = renderHook(() =>
+      useThing('https://example.com/profile/card#me', { fetch })
     )
 
-    expect(result.current.thing).toBe(undefined);
+    expect(result.current.thing).toBe(undefined)
 
     resolve(mockProfileResource())
 
     await waitForValueToChange(() => result.current.thing)
 
-    expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual("A. N. Other");
-  });
+    expect(getStringNoLocale(result.current.thing, FOAF.name)).toEqual(
+      'A. N. Other'
+    )
+  })
 
   test("returns null if the resource exists but the thing doesn't", async () => {
     const { fetch, resolve } = newMockFetch()
-    const { result, waitForValueToChange } = renderHook(
-      () => useThing("https://example.com/profile/card#you", { fetch })
+    const { result, waitForValueToChange } = renderHook(() =>
+      useThing('https://example.com/profile/card#you', { fetch })
     )
-    expect(result.current.thing).toBe(undefined);
+    expect(result.current.thing).toBe(undefined)
 
     resolve(mockProfileResource())
 
     await waitForValueToChange(() => result.current.thing)
 
-    expect(result.current.thing).toEqual(null);
-  });
+    expect(result.current.thing).toEqual(null)
+  })
 
-  test("returns a save function if a uri is passed and does not otherwise", async () => {
+  test('returns a save function if a uri is passed and does not otherwise', async () => {
     // returns save if passed
-    const { result: uriDefinedResult } = renderHook(() => useThing("https://example.com/profile/card#me"))
-    expect(uriDefinedResult.current.save).toBeInstanceOf(Function);
+    const { result: uriDefinedResult } = renderHook(() =>
+      useThing('https://example.com/profile/card#me')
+    )
+    expect(uriDefinedResult.current.save).toBeInstanceOf(Function)
 
     // does not otherwise
     const { result: uriUndefinedResult } = renderHook(() => useThing(undefined))
-    expect(uriUndefinedResult.current.save).toBe(undefined);
-  });
+    expect(uriUndefinedResult.current.save).toBe(undefined)
+  })
 })
-
 
 /*
 
