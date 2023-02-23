@@ -43,7 +43,6 @@
       // Re-exported functions are already documented in their own modules:
       "src/index.ts"
     ],
-    "theme": "category",
     "readme": "none",
     "entryDocument": "index.html"
   }
