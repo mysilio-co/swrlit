@@ -3,10 +3,10 @@ import esbuild from 'rollup-plugin-esbuild'
 
 const name = require('./package.json').main.replace(/\.js$/, '')
 
-const bundle = config => ({
+const bundle = (config) => ({
   ...config,
   input: 'src/index.ts',
-  external: id => !/^[./]/.test(id),
+  external: (id) => !/^[./]/.test(id),
 })
 
 export default [
@@ -24,9 +24,9 @@ export default [
         sourcemap: true,
       },
       {
-        dir: "dist",
-        entryFileNames: "[name].mjs",
-        format: "esm",
+        dir: 'dist',
+        entryFileNames: '[name].mjs',
+        format: 'esm',
         preserveModules: true,
       },
     ],

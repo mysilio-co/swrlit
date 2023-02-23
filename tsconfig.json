@@ -4,10 +4,7 @@
     //"declaration": true,
     "rootDir": "src",
     "outDir": "dist",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "lib": ["es2017", "dom"],
     "sourceMap": true,
     "strict": true,
     // linter checks for common issues
@@ -25,20 +22,16 @@
     // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
     "skipLibCheck": true,
     // error out if import and file system have a casing mismatch. Recommended by TS
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": false
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "**/node_modules"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/node_modules"],
   "typedocOptions": {
     "out": "docs/api",
     "entryPoints": [
       // The source files of everything listed under `exports` in our package.json
       // (i.e. public API's that should be documented) should be listed here:
-      "src/hooks/things.ts",
+      "src/hooks/things.ts"
     ],
     "exclude": [
       "node_modules/**",
@@ -48,8 +41,7 @@
       // End-to-end tests:
       "e2e/**",
       // Re-exported functions are already documented in their own modules:
-      "src/index.ts",
-
+      "src/index.ts"
     ],
     "theme": "category",
     "readme": "none",
