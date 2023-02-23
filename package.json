@@ -86,6 +86,7 @@
     "@types/react": "^17.0.0",
     "esbuild": "^0.14.48",
     "jest": "^28.1.2",
+    "prettier": "2.3.2",
     "rimraf": "^3.0.2",
     "rollup": "^2.75.7",
     "rollup-plugin-dts": "^4.2.2",
