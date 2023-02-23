@@ -59,17 +59,15 @@
     "test": "jest",
     "build": "rimraf dist && rollup -c",
     "size": "npm run build && size-limit",
-    "docs:build": "typedoc"
+    "docs:build": "typedoc",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mysilio-co/swrlit.git"
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   },
   "keywords": [
     "solid",
@@ -85,7 +83,9 @@
     "@types/jest": "^28.1.4",
     "@types/react": "^17.0.0",
     "esbuild": "^0.14.48",
+    "husky": "^8.0.3",
     "jest": "^28.1.2",
+    "lint-staged": "^13.1.2",
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",
     "rollup": "^2.75.7",
