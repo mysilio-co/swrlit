@@ -1,145 +1,183 @@
 import { useCallback } from 'react'
 import useSWRHook, { SWRHook } from 'swr'
 import { WebId } from '@inrupt/solid-client/interfaces'
-import * as access from '@inrupt/solid-client/access/universal'
+import {
+  getPublicAccess,
+  setPublicAccess,
+  getAgentAccess,
+  setAgentAccess,
+} from '@inrupt/solid-client/universal'
 import { SwrldResult, SwrlitKey } from './things'
 import { useAuthentication } from '../contexts/authentication'
+import {
+  createAcl,
+  createAclFromFallbackAcl,
+  getFileWithAcl,
+  hasResourceAcl,
+  hasFallbackAcl,
+  hasAccessibleAcl,
+  saveAclFor,
+} from '@inrupt/solid-client'
+import { dequal } from 'dequal/lite'
+
+// redefined from solid-client because it is not exported
+// https://github.com/inrupt/solid-client-js/blob/main/src/acp/type/AccessModes.ts
+export interface AccessModes {
+  read: boolean
+  append: boolean
+  write: boolean
+  controlRead: boolean
+  controlWrite: boolean
+}
 
 export type AccessResult = SwrldResult & {
-  access: access.Access
+  access: AccessModes
   saveAccess: any
+  ensureAccess: any // sets access to desired value if not set
+  revokeAccess: any // revoke all access
 }
 export type AllAccessResult = SwrldResult & {
-  allAccess: Record<WebId, access.Access>
+  allAccess: Record<WebId, AccessModes>
 }
 
 const useSWR: SWRHook = useSWRHook as any as SWRHook
 
-// TODO use access.Actor once https://github.com/inrupt/solid-client-js/pull/1519 is released
-export type Actor = 'agent' | 'group' | 'public'
-export const GroupActor = 'group'
-export const AgentActor = 'agent'
-export const PublicActor = 'public'
+export const RevokedAccess = {
+  read: false,
+  append: false,
+  write: false,
+  controlRead: false,
+  controlWrite: false,
+}
 
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
+export async function ensureAcl(resourceUrl: SwrlitKey, options: any) {
+  if (resourceUrl) {
+    const resourceWithAcl = await getFileWithAcl(resourceUrl, options)
+    if (!hasAccessibleAcl(resourceWithAcl)) {
+      throw new Error(
+        'The current user does not have permission to change access rights to this Resource.'
+      )
+    }
+    if (!hasResourceAcl(resourceWithAcl)) {
+      let acl
+      if (hasFallbackAcl(resourceWithAcl)) {
+        acl = createAclFromFallbackAcl(resourceWithAcl)
+      } else {
+        acl = createAcl(resourceWithAcl)
+      }
+      await saveAclFor(resourceWithAcl, acl, options)
+    }
+  } else {
+    throw new Error('Cannot ensureAcl for undefined resource')
+  }
+}
+
 export function usePublicAccess(resourceUrl: SwrlitKey): AccessResult {
-  return useAccessFor(resourceUrl, PublicActor)
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useAgentAccess(
-  resourceUrl: SwrlitKey,
-  webId: SwrlitKey
-): AccessResult {
-  return useAccessFor(resourceUrl, AgentActor, webId)
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useAgentAccessAll(resourceUrl: SwrlitKey): AllAccessResult {
-  return useAccessForAll(resourceUrl, AgentActor)
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useGroupAccess(
-  resourceUrl: SwrlitKey,
-  groupId: SwrlitKey
-): AccessResult {
-  return useAccessFor(resourceUrl, GroupActor, groupId)
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useGroupAccessAll(resourceUrl: SwrlitKey): AllAccessResult {
-  return useAccessForAll(resourceUrl, GroupActor)
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useAccessForAll(
-  resourceUrl: SwrlitKey,
-  actorType: Actor
-): AllAccessResult {
   const { fetch } = useAuthentication()
   const fetcher = useCallback(
-    (resourceUrl: string, actorType: Actor) => {
-      if (actorType == PublicActor) {
-        throw new Error(
-          "useAccessForAll not supported for 'public' actor. Try useAccessFor instead."
-        )
-      } else {
-        return access.getAccessForAll(resourceUrl, actorType, { fetch })
-      }
-    },
-    [resourceUrl, actorType, fetch]
-  )
-  const swr = useSWR([resourceUrl, actorType], fetcher) as AllAccessResult
-  swr.allAccess = swr.data
-  return swr
-}
-
-/*
- * EXPERIMENTAL - API may change even in minor releases
- */
-export function useAccessFor(
-  resourceUrl: SwrlitKey,
-  actorType: Actor,
-  actor?: SwrlitKey
-): AccessResult {
-  const { fetch } = useAuthentication()
-  const fetcher = useCallback(
-    (resourceUrl: string, actorType: Actor, actor: string) => {
-      if (actorType == PublicActor) {
-        return access.getAccessFor(resourceUrl, actorType, { fetch })
-      } else {
-        return access.getAccessFor(resourceUrl, actorType, actor, { fetch })
-      }
-    },
-    [resourceUrl, actorType, actor, fetch]
-  )
-  const swr = useSWR([resourceUrl, actorType, actor], fetcher) as AccessResult
-  const mutate = swr.mutate
-  const saveAccess = useCallback(
-    async function (newAccess: access.Access) {
-      if (resourceUrl && actorType == PublicActor) {
-        mutate(newAccess, false)
-        const savedAccess = await access.setAccessFor(
-          resourceUrl,
-          actorType,
-          newAccess,
-          { fetch }
-        )
-        mutate(savedAccess)
-        return savedAccess
-      } else if (resourceUrl && actor) {
-        mutate(newAccess, false)
-        const savedAccess = await access.setAccessFor(
-          resourceUrl,
-          actorType,
-          newAccess,
-          actor,
-          { fetch }
-        )
-        mutate(savedAccess)
-        return savedAccess
-      } else {
-        throw new Error(
-          `Could not update ${actorType} access for resource with url of ${resourceUrl} for actor ${actor}`
-        )
-      }
+    async function (resourceUrl) {
+      return getPublicAccess(resourceUrl, { fetch })
     },
     [resourceUrl, fetch]
   )
+  const swr = useSWR([resourceUrl], fetcher) as AccessResult
+  const mutate = swr.mutate
+  const saveAccess = useCallback(
+    async function (newAccess: AccessModes) {
+      if (resourceUrl) {
+        mutate(newAccess, false)
+        await ensureAcl(resourceUrl, { fetch })
+        const savedAccess = await setPublicAccess(resourceUrl, newAccess, {
+          fetch,
+        })
+        mutate(savedAccess)
+        return savedAccess
+      } else {
+        throw new Error(
+          `Could not update Public access for resource with url of ${resourceUrl}`
+        )
+      }
+    },
+    [swr, resourceUrl, fetch]
+  )
   swr.saveAccess = resourceUrl && saveAccess
   swr.access = swr.data
+  const ensureAccess = useCallback(
+    async function (toEnsure: AccessModes) {
+      console.log(`Ensuring ${swr.access} is ${toEnsure}`)
+      if (swr.access && !dequal(swr.access, toEnsure)) {
+        console.log(`Updating access to ${toEnsure}`)
+        await swr.saveAccess(toEnsure)
+      } else {
+        console.log(`Access already matches ${toEnsure}`)
+      }
+      return toEnsure
+    },
+    [swr.access]
+  )
+  const revokeAccess = useCallback(
+    async function () {
+      return await ensureAccess(RevokedAccess)
+    },
+    [swr.access]
+  )
+  swr.ensureAccess = ensureAccess
+  swr.revokeAccess = revokeAccess
+  return swr
+}
+
+export function useAgentAccess(
+  resourceUrl: SwrlitKey,
+  webId: WebId
+): AccessResult {
+  const { fetch } = useAuthentication()
+  const fetcher = useCallback(
+    async function (resourceUrl, webId) {
+      return getAgentAccess(resourceUrl, webId, { fetch })
+    },
+    [resourceUrl, webId, fetch]
+  )
+  const swr = useSWR([resourceUrl, webId], fetcher) as AccessResult
+  const mutate = swr.mutate
+  const saveAccess = useCallback(
+    async function (newAccess: AccessModes) {
+      if (resourceUrl) {
+        mutate(newAccess, false)
+        await ensureAcl(resourceUrl, { fetch })
+        const savedAccess = await setAgentAccess(
+          resourceUrl,
+          webId,
+          newAccess,
+          { fetch }
+        )
+        mutate(savedAccess)
+        return savedAccess
+      } else {
+        throw new Error(
+          `Could not update Agent access for resource with url of ${resourceUrl} for ${webId}`
+        )
+      }
+    },
+    [swr, resourceUrl, webId, fetch]
+  )
+  swr.saveAccess = resourceUrl && saveAccess
+  swr.access = swr.data
+  const ensureAccess = useCallback(
+    async function (toEnsure: AccessModes) {
+      if (swr.access !== toEnsure) {
+        await swr.saveAccess(toEnsure)
+      }
+      return toEnsure
+    },
+    [swr]
+  )
+  const revokeAccess = useCallback(
+    async function () {
+      return await ensureAccess(RevokedAccess)
+    },
+    [swr]
+  )
+  swr.ensureAccess = ensureAccess
+  swr.revokeAccess = revokeAccess
   return swr
 }

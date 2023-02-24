@@ -27,10 +27,7 @@ export type SwrlitConfigInterface = SWRConfiguration & {
 export type SwrlitKey = UrlString | null | undefined
 
 export type SwrldResult = SWRResponse<any, any>
-export type ResourceResult = SwrldResult & {
-  resource: SolidDataset
-  save: any
-}
+export type ResourceResult = SwrldResult & { resource: SolidDataset; save: any }
 export type ThingResult = ResourceResult & { thing: Thing; saveResource: any }
 export type MetaResult = ResourceResult & { meta: SolidDataset }
 export type ContainerResult = SwrldResult & { resources: any }
